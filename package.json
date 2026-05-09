@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "codefest",
   "version": "0.1.0",
@@ -27,3 +28,36 @@
     "typescript": "^5"
   }
 }
+=======
+{
+  "name": "codefest",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.14.0",
+    "next": "^15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^8",
+    "eslint-config-next": "^15.3.2",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+>>>>>>> 9cfc584 (Complete project setup)

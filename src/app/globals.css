@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 
 :root {
@@ -139,3 +140,8 @@ body::before {
   cursor: not-allowed;
   opacity: 0.5;
 }
+=======
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+>>>>>>> 9cfc584 (Complete project setup)
