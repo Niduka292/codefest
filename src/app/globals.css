@@ -1,26 +1,141 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0f;
+  --foreground: #f7f7fb;
+  --card: #111118;
+  --card-border: #1f1f2e;
+  --field: #1a1a2e;
+  --field-border: #2d2d44;
+  --purple: #8b5cf6;
+  --purple-strong: #7c3aed;
+  --cyan: #22d3ee;
+  --amber: #f59e0b;
+  --muted: #9ca3af;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
+  --font-mono: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 12px 12px, rgba(34, 211, 238, 0.14) 1px, transparent 2px),
+    radial-gradient(circle at 58px 58px, rgba(139, 92, 246, 0.12) 1px, transparent 2px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(139, 92, 246, 0.07) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent 35%);
+  background-size: 70px 70px, 92px 92px, 140px 140px, 140px 140px, 100% 100%;
+  background-position: 0 0, 16px 20px, 0 0, 0 0, center;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  animation: circuit-drift 28s linear infinite;
+}
+
+body::before {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background:
+    radial-gradient(circle at 18% 22%, rgba(139, 92, 246, 0.12), transparent 26%),
+    radial-gradient(circle at 80% 12%, rgba(34, 211, 238, 0.1), transparent 24%),
+    radial-gradient(circle at 65% 78%, rgba(245, 158, 11, 0.08), transparent 22%);
+  filter: blur(8px);
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.28);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--purple), var(--cyan));
+  border: 2px solid #0a0a0f;
+  border-radius: 999px;
+}
+
+@keyframes circuit-drift {
+  0% {
+    background-position: 0 0, 16px 20px, 0 0, 0 0, center;
+  }
+
+  100% {
+    background-position: 70px 70px, 108px 112px, 140px 0, 0 140px, center;
+  }
+}
+
+@keyframes score-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 28px rgba(34, 211, 238, 0.35);
+  }
+}
+
+.score-pulse {
+  animation: score-pulse 900ms ease-out;
+}
+
+.font-display {
+  font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+}
+
+.codefest-field {
+  width: 100%;
+  border: 1px solid #2d2d44;
+  background: #1a1a2e;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  outline: none;
+  transition: all 300ms ease;
+}
+
+.codefest-field::placeholder {
+  color: #52525b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.codefest-field:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 22px rgba(139, 92, 246, 0.18);
+}
+
+.codefest-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 300ms ease;
+}
+
+.codefest-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
