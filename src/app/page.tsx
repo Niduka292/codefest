@@ -1,15 +1,37 @@
 import Link from "next/link";
-import { ArrowRight, Braces, Cpu, MessageCircle, Radio, Send, Share2, ShieldCheck, Signal, Trophy } from "lucide-react";
+import { Bug, GitFork, LockKeyhole, Radio, Trophy, Zap } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { getTopTeams } from "@/lib/data";
 
-const sponsors = ["JPL NODE", "NOVA CLOUD", "BYTEFORGE", "QUANTUM LABS"];
-const telemetry = [
-  { label: "Signal latency", value: "22h 14m", accent: "text-cyan-200" },
-  { label: "Cipher layers", value: "12", accent: "text-purple-200" },
-  { label: "Teams linked", value: "500+", accent: "text-amber-200" },
+const modules = [
+  {
+    id: "01",
+    title: "Logic Corruption",
+    type: "Debugging",
+    copy: "Identify and fix corrupted code segments from the alien transmission",
+    icon: Bug,
+    status: "ACTIVE",
+    color: "cyan",
+  },
+  {
+    id: "02",
+    title: "Quantum Network",
+    type: "Networking",
+    copy: "Route packets through a multi-dimensional network topology",
+    icon: GitFork,
+    status: "LOCKED",
+    color: "purple",
+  },
+  {
+    id: "03",
+    title: "Cipher Protocols",
+    type: "Cryptography",
+    copy: "Decrypt alien encryption algorithms using known cryptographic methods",
+    icon: LockKeyhole,
+    status: "LOCKED",
+    color: "amber",
+  },
 ];
-const bars = Array.from({ length: 18 });
 
 export default async function Home() {
   const targetDate = new Date();
@@ -18,222 +40,166 @@ export default async function Home() {
 
   return (
     <div className="overflow-hidden">
-      <section className="relative flex min-h-screen items-center px-4 pb-20 pt-28 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute left-[9%] top-[22%] h-64 w-64 rounded-full border border-cyan-300/10" />
-          <div className="absolute right-[7%] top-[16%] h-80 w-80 rounded-full border border-purple-300/10" />
-          <div className="absolute bottom-[8%] left-[28%] h-px w-1/2 bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
-        </div>
-
-        <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div className="relative z-10">
-            <p className="section-kicker">Classified deep-space relay</p>
-            <h1 className="mission-title mt-7 max-w-5xl text-5xl leading-[0.95] text-white drop-shadow-[0_0_46px_rgba(0,229,255,0.18)] sm:text-7xl lg:text-8xl">
-              Voyager-1 Has Received A Response
-            </h1>
-            <p className="mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              CODEFEST is now humanity&apos;s first alien communication interface: a high-pressure computer science
-              mission where teams decode encrypted transmissions, solve puzzle tracks, and climb the live command feed.
-            </p>
-
-            <div className="mt-9 flex w-full max-w-2xl flex-col gap-4 sm:flex-row">
-              <Link href="/register" className="codefest-button signal-button px-8 py-4 text-sm">
-                Join Mission <ArrowRight size={16} />
-              </Link>
-              <Link href="/#events" className="codefest-button ghost-button px-8 py-4 text-sm">
-                Decode Briefing
-              </Link>
-            </div>
-
-            <div className="mt-10 max-w-2xl">
-              <CountdownTimer targetDate={targetDate} />
-            </div>
+      <section className="relative flex min-h-[calc(100vh-88px)] items-start justify-center px-4 pb-10 pt-6 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center text-center">
+          <div className="status-pill font-terminal inline-flex items-center gap-3 px-6 py-3 text-base font-bold uppercase tracking-wider">
+            <Radio size={18} />
+            Signal Detected
           </div>
 
-          <div className="relative mx-auto flex aspect-square w-full max-w-[560px] items-center justify-center">
-            <span className="pulse-ring" />
-            <span className="pulse-ring" />
-            <span className="pulse-ring" />
-            <div className="radar-disc absolute inset-4 opacity-80" />
-            <div className="absolute left-[7%] top-[23%] h-2 w-2 animate-ping bg-cyan-200" />
-            <div className="absolute right-[16%] top-[36%] h-2 w-2 animate-pulse bg-amber-200" />
-            <div className="absolute bottom-[20%] left-[26%] h-2 w-2 animate-ping bg-purple-200" />
+          <h1 className="page-gradient-title mt-11 max-w-[1180px] text-[4.4rem] sm:text-[7.8rem] lg:text-[8.2rem] xl:text-[7.3rem] 2xl:text-[8.6rem]">
+            Voyager-1 Has
+            <br />
+            Received A
+            <br />
+            Response
+          </h1>
 
-            <div className="glass-panel scanline relative z-10 w-[82%] max-w-md p-5 sm:p-7">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="terminal-label">Voyager-1 / rx_1977</p>
-                  <h2 className="font-display mt-2 text-2xl font-black uppercase text-white sm:text-3xl">
-                    Unknown Signal
-                  </h2>
-                </div>
-                <Signal className="text-cyan-200 drop-shadow-[0_0_18px_rgba(0,229,255,0.5)]" size={34} />
-              </div>
+          <p className="mt-9 max-w-[940px] text-2xl font-medium leading-[1.65] text-slate-400">
+            After 47 years in deep space, Voyager-1 has detected an extraterrestrial transmission. Your mission: solve
+            interconnected CS puzzles to decode the message.
+          </p>
 
-              <div className="mt-7 flex h-28 items-end justify-center gap-2 transmission-bars">
-                {bars.map((_, index) => (
-                  <span key={index} style={{ height: `${26 + ((index * 19) % 72)}px` }} />
-                ))}
-              </div>
+          <p className="font-terminal mt-10 text-xl font-bold uppercase tracking-wider text-cyan-300">
+            Mission Begins In
+          </p>
 
-              <div className="mt-8 grid grid-cols-3 gap-3">
-                {telemetry.map((item) => (
-                  <div key={item.label} className="hud-frame p-3">
-                    <p className={`font-display text-2xl font-black ${item.accent}`}>{item.value}</p>
-                    <p className="font-terminal mt-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      {item.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="mt-5 w-full max-w-[560px]">
+            <CountdownTimer targetDate={targetDate} />
           </div>
         </div>
       </section>
 
-      <section id="teams" className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <article className="glass-panel p-8 transition-all duration-300 hover:border-cyan-300/50 hover:shadow-signal">
-              <div className="relative z-10 flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center border border-amber-300/40 bg-amber-300/10 text-amber-200 shadow-amber">
-                  <Trophy size={28} />
-                </div>
-                <div>
-                  <p className="terminal-label">Mission reward cache</p>
-                  <h2 className="mission-title mt-1 text-3xl text-white">$10,000 Prize Pool</h2>
-                </div>
-              </div>
-              <p className="relative z-10 mt-5 max-w-xl text-sm leading-7 text-slate-300">
-                Scholarships, hardware grants, and finalist awards for teams that survive the alien cipher stack.
-              </p>
-            </article>
-
-            <article className="glass-panel p-8 transition-all duration-300 hover:border-amber-300/50 hover:shadow-amber">
-              <div className="relative z-10 grid gap-5 sm:grid-cols-2">
-                <div>
-                  <Cpu className="text-cyan-200" />
-                  <p className="font-display mt-4 text-4xl font-black uppercase text-cyan-200">500+</p>
-                  <p className="font-terminal mt-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-                    Operators linked
-                  </p>
-                </div>
-                <div>
-                  <Braces className="text-purple-200" />
-                  <p className="font-display mt-4 text-4xl font-black uppercase text-purple-200">12</p>
-                  <p className="font-terminal mt-2 text-xs font-bold uppercase tracking-widest text-slate-400">
-                    Cipher tracks
-                  </p>
-                </div>
-              </div>
-            </article>
+      <section id="events" className="px-4 pb-20 pt-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="text-center">
+            <h2 className="page-gradient-title text-5xl sm:text-7xl lg:text-8xl">Mission Modules</h2>
+            <p className="font-terminal mt-5 text-xl font-bold uppercase tracking-widest text-slate-400">
+              Complete challenges to unlock the final cipher
+            </p>
           </div>
 
-          <div className="glass-panel mt-8 p-6">
-            <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="relative flex h-3 w-3">
-                  <span className="absolute inline-flex h-full w-full animate-ping bg-red-400 opacity-75" />
-                  <span className="relative inline-flex h-3 w-3 bg-red-400" />
-                </span>
-                <h3 className="mission-title text-lg tracking-widest text-white">Live Mission Feed</h3>
+          <div className="glass-panel mt-16 p-8">
+            <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto_auto] lg:items-center">
+              <div>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Mission Progress</p>
+                <p className="font-display mt-3 text-3xl font-black uppercase text-cyan-300">3 / 10 Modules Active</p>
               </div>
-              <Link href="/leaderboard" className="codefest-button justify-start text-xs text-cyan-200 hover:text-white sm:justify-center">
-                Open Rankings <ArrowRight size={14} />
+              <div>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Total Points</p>
+                <p className="font-display mt-2 text-2xl font-black text-amber-300">2,275 XP</p>
+              </div>
+              <div>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Completion</p>
+                <p className="font-display mt-2 text-2xl font-black text-emerald-400">0%</p>
+              </div>
+            </div>
+            <div className="relative z-10 mt-7 h-3 overflow-hidden rounded-full bg-[#030712]">
+              <div className="h-full w-[30%] rounded-full bg-gradient-to-r from-cyan-300 to-purple-400 shadow-signal" />
+            </div>
+          </div>
+
+          <div className="mt-12 grid gap-7 lg:grid-cols-3">
+            {modules.map((module) => {
+              const Icon = module.icon;
+              const isActive = module.status === "ACTIVE";
+              const accent =
+                module.color === "cyan"
+                  ? "border-cyan-300/35 text-cyan-300"
+                  : module.color === "purple"
+                    ? "border-purple-400/35 text-purple-400"
+                    : "border-amber-300/35 text-amber-300";
+
+              return (
+                <article key={module.id} className="module-card p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/50 hover:shadow-signal">
+                  <div className="flex items-start justify-between">
+                    <div className={`flex h-20 w-20 items-center justify-center rounded-lg border bg-current/10 ${accent}`}>
+                      <Icon size={38} />
+                    </div>
+                    <span
+                      className={`font-terminal rounded border px-3 py-2 text-sm font-bold uppercase ${
+                        isActive
+                          ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-400"
+                          : "border-red-400/60 bg-red-500/10 text-red-400"
+                      }`}
+                    >
+                      {module.status}
+                    </span>
+                  </div>
+                  <p className="font-terminal mt-8 text-base font-bold uppercase tracking-widest text-slate-500">
+                    Module {module.id}
+                  </p>
+                  <h3 className="font-display mt-3 text-2xl font-black uppercase text-cyan-300">{module.title}</h3>
+                  <p className="font-terminal mt-3 text-base text-purple-400">{module.type}</p>
+                  <p className="mt-5 max-w-sm text-lg leading-8 text-slate-400">{module.copy}</p>
+                  <div className="mt-7 h-px bg-cyan-300/25" />
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="cipher" className="px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-[1240px] gap-7 lg:grid-cols-[1fr_1fr]">
+          <article className="glass-panel p-8">
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-amber-300/40 bg-amber-300/10 text-amber-300">
+                <Trophy size={28} />
+              </div>
+              <div>
+                <p className="font-terminal text-sm font-bold uppercase tracking-widest text-slate-400">Mission reward cache</p>
+                <h2 className="font-display mt-1 text-3xl font-black uppercase text-white">$10,000 Prize Pool</h2>
+              </div>
+            </div>
+            <p className="relative z-10 mt-5 max-w-xl text-lg leading-8 text-slate-400">
+              Scholarships, hardware grants, and finalist awards for teams that survive the alien cipher stack.
+            </p>
+          </article>
+
+          <article className="glass-panel p-8">
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-terminal text-sm font-bold uppercase tracking-widest text-slate-400">Live Mission Feed</p>
+                <h2 className="font-display mt-1 text-3xl font-black uppercase text-white">Top Signals</h2>
+              </div>
+              <Link href="/leaderboard" className="codefest-button ghost-button px-5 py-3 text-xs">
+                Rankings
               </Link>
             </div>
-
-            <div className="relative z-10 mt-5 grid gap-3 md:grid-cols-2">
+            <div className="relative z-10 mt-6 grid gap-3">
               {topTeams.length > 0 ? (
                 topTeams.map((team, index) => (
-                  <div key={team.id} className="hud-frame flex items-center justify-between p-4 transition-all duration-300 hover:border-cyan-300/45">
+                  <div key={team.id} className="hud-frame flex items-center justify-between p-4">
                     <div>
-                      <p className="font-terminal text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Signal rank {index + 1}
-                      </p>
+                      <p className="font-terminal text-xs font-bold uppercase tracking-widest text-slate-500">Rank {index + 1}</p>
                       <p className="font-display mt-1 text-xl font-bold text-white">{team.name}</p>
                     </div>
-                    <p className="font-display text-2xl font-black text-cyan-200">{team.score}</p>
+                    <p className="font-display text-2xl font-black text-cyan-300">{team.score}</p>
                   </div>
                 ))
               ) : (
-                <p className="hud-frame p-4 text-sm text-slate-400 md:col-span-2">
+                <p className="hud-frame p-4 text-sm text-slate-400">
                   Live teams will appear here as soon as Supabase returns registered competitors.
                 </p>
               )}
             </div>
-          </div>
-
-          <div id="events" className="mt-14 border-y border-cyan-300/15 py-8">
-            <p className="section-kicker mx-auto w-fit">Transmission partners</p>
-            <div className="mt-6 grid gap-4 text-center font-terminal text-sm font-bold uppercase tracking-widest text-slate-500 sm:grid-cols-2 lg:grid-cols-4">
-              {sponsors.map((sponsor) => (
-                <span key={sponsor} className="transition-all duration-300 hover:text-cyan-200 hover:drop-shadow-[0_0_14px_rgba(0,229,255,0.35)]">
-                  {sponsor}
-                </span>
-              ))}
-            </div>
-          </div>
+          </article>
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="glass-panel scanline mx-auto max-w-5xl p-8 text-center sm:p-12">
-          <ShieldCheck className="relative z-10 mx-auto text-cyan-200" size={42} />
-          <h2 className="mission-title relative z-10 mt-5 text-4xl text-white sm:text-6xl">Enter The Decoder Array</h2>
-          <p className="relative z-10 mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300">
-            Bring your team, pick your stack, and work the signal through timed tracks built for algorithms,
-            debugging instincts, and production-grade problem solving.
+      <section className="px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[960px] text-center">
+          <Zap className="mx-auto text-cyan-300" size={42} />
+          <h2 className="page-gradient-title mt-5 text-5xl sm:text-7xl">Authorize Uplink</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+            Assemble your crew and enter the protocol before the final transmission window closes.
           </p>
-          <Link href="/register" className="codefest-button signal-button relative z-10 mx-auto mt-10 w-full max-w-xl px-10 py-5 text-sm">
-            Authorize Team Uplink
+          <Link href="/register" className="codefest-button signal-button mt-9 px-10 py-5 text-sm">
+            Register Team
           </Link>
-          <p className="font-terminal relative z-10 mt-5 text-xs font-black uppercase tracking-widest text-amber-200">
-            Registration window closes in 48 hours
-          </p>
         </div>
       </section>
-
-      <footer className="border-t border-cyan-300/15 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_auto_auto]">
-          <div>
-            <p className="font-display bg-gradient-to-r from-cyan-200 via-blue-300 to-purple-300 bg-clip-text text-2xl font-black text-transparent">
-              CODEFEST
-            </p>
-            <p className="font-terminal mt-3 text-xs font-bold uppercase tracking-widest text-slate-500">
-              &copy; 2026 University Codefest | CS Department
-            </p>
-          </div>
-          <div>
-            <h3 className="terminal-label text-white">Resources</h3>
-            <div className="mt-3 flex flex-col gap-2 text-sm text-slate-500">
-              <Link href="/#events" className="transition-all duration-300 hover:text-cyan-200">
-                API Docs
-              </Link>
-              <Link href="/#events" className="transition-all duration-300 hover:text-cyan-200">
-                Rules
-              </Link>
-            </div>
-          </div>
-          <div>
-            <h3 className="terminal-label text-white">Support</h3>
-            <div className="mt-3 flex flex-col gap-2 text-sm text-slate-500">
-              <Link href="/#events" className="transition-all duration-300 hover:text-cyan-200">
-                Help Center
-              </Link>
-              <Link href="/#events" className="transition-all duration-300 hover:text-cyan-200">
-                Contact
-              </Link>
-            </div>
-            <div className="mt-5 flex gap-3 text-slate-500">
-              <MessageCircle size={18} />
-              <Send size={18} />
-              <Share2 size={18} />
-              <Radio size={18} />
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

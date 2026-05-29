@@ -1,90 +1,91 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, SatelliteDish, X } from "lucide-react";
+import { BookOpen, Grid2X2, LockKeyhole, Menu, Satellite, Trophy, UserPlus, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navLinks = [
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/#events", label: "Events" },
-  { href: "/#teams", label: "Teams" },
-  { href: "/admin/login", label: "Admin" },
+  { href: "/", label: "Mission", icon: Satellite, match: "/" },
+  { href: "/#events", label: "Games", icon: BookOpen, match: "#events" },
+  { href: "/#cipher", label: "Cipher", icon: LockKeyhole, match: "#cipher" },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy, match: "/leaderboard" },
+  { href: "/register", label: "Register", icon: UserPlus, match: "/register" },
+  { href: "/admin/login", label: "Admin", icon: Grid2X2, match: "/admin" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5">
-      <nav className="glass-panel mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-5 lg:px-6">
+    <header className="nav-shell sticky top-0 z-50">
+      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-6 py-4 lg:px-8">
         <Link
           href="/"
-          className="group relative z-10 inline-flex items-center gap-3 transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(0,229,255,0.42)]"
+          className="group inline-flex min-w-[250px] items-center gap-4 transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(0,229,255,0.42)]"
         >
-          <span className="flex h-10 w-10 items-center justify-center border border-cyan-300/40 bg-cyan-300/10 text-cyan-200 shadow-signal">
-            <SatelliteDish size={19} />
+          <span className="text-cyan-300">
+            <Satellite size={38} strokeWidth={2.4} />
           </span>
           <span>
-            <span className="font-display block bg-gradient-to-r from-cyan-200 via-blue-300 to-purple-300 bg-clip-text text-xl font-black tracking-tight text-transparent sm:text-2xl">
-              CODEFEST
+            <span className="font-terminal block text-2xl font-black uppercase tracking-[0.13em] text-cyan-300">
+              Voyager-1
             </span>
-            <span className="font-terminal block text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-200/70">
-              Voyager uplink
+            <span className="font-terminal mt-1 block text-[13px] font-bold uppercase tracking-[0.19em] text-slate-400">
+              Deep Space Protocol
             </span>
           </span>
         </Link>
 
-        <div className="relative z-10 hidden items-center gap-2 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="font-terminal px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-300 transition-all duration-300 hover:bg-cyan-300/10 hover:text-cyan-200 hover:shadow-signal"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <div className="nav-dock hidden flex-1 items-center justify-between p-1 md:flex">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const active =
+              link.match === "/" ? pathname === "/" : link.match.startsWith("/") && pathname.startsWith(link.match);
 
-        <div className="relative z-10 hidden items-center md:flex">
-          <Link
-            href="/register"
-            className="codefest-button signal-button px-5 py-3 text-xs"
-          >
-            Register Now
-          </Link>
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`font-terminal flex min-w-0 items-center justify-center gap-2 rounded-md px-5 py-3 text-[15px] font-bold tracking-wide transition-all duration-300 ${
+                  active ? "nav-item-active" : "text-slate-400 hover:bg-cyan-300/10 hover:text-cyan-200"
+                }`}
+              >
+                <Icon size={18} />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <button
           type="button"
           aria-label="Toggle menu"
           onClick={() => setOpen((value) => !value)}
-          className="relative z-10 inline-flex h-11 w-11 items-center justify-center border border-cyan-300/25 bg-cyan-300/10 text-cyan-100 transition-all duration-300 hover:border-cyan-300/70 hover:text-white md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-cyan-300/25 bg-cyan-300/10 text-cyan-100 transition-all duration-300 hover:border-cyan-300/70 hover:text-white md:hidden"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 
       {open ? (
-        <div className="glass-panel mx-auto mt-2 max-w-7xl px-4 pb-5 pt-3 md:hidden">
+        <div className="nav-dock mx-4 mb-4 px-3 pb-3 pt-2 md:hidden">
           <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="font-terminal border border-transparent px-3 py-3 text-xs font-bold uppercase tracking-widest text-slate-300 transition-all duration-300 hover:border-cyan-300/25 hover:bg-cyan-300/10 hover:text-cyan-200"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              href="/register"
-              onClick={() => setOpen(false)}
-              className="codefest-button signal-button mt-2 px-5 py-3 text-xs"
-            >
-              Register Now
-            </Link>
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="font-terminal flex items-center gap-3 rounded-md px-3 py-3 text-sm font-bold text-slate-300 transition-all duration-300 hover:bg-cyan-300/10 hover:text-cyan-200"
+                >
+                  <Icon size={17} />
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       ) : null}

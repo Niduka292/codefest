@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { Brain, Medal, Rocket, TrendingUp, Trophy, Users, Zap } from "lucide-react";
 import { AddPointsModal } from "@/components/AddPointsModal";
-import { AdminSidebar } from "@/components/AdminSidebar";
-import { CountdownTimer } from "@/components/CountdownTimer";
 import { supabase } from "@/lib/supabase";
 import type { Team } from "@/lib/types";
 
@@ -40,7 +38,7 @@ function memberInitials(team: Team) {
     .map((part) => part.slice(0, 2).toUpperCase());
 }
 
-export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: LeaderboardClientProps) {
+export function LeaderboardClient({ initialTeams, isAdmin }: LeaderboardClientProps) {
   const [teams, setTeams] = useState(initialTeams);
   const [modalOpen, setModalOpen] = useState(false);
   const [highlightedScores, setHighlightedScores] = useState<Record<string, boolean>>({});
@@ -53,6 +51,9 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
     [teams],
   );
   const maxScore = Math.max(1, ...orderedTeams.map((team) => team.score ?? 0));
+  const topThree = orderedTeams.slice(0, 3);
+  const podiumTeams = [topThree[1], topThree[0], topThree[2]].filter((team): team is Team => Boolean(team));
+  const topScore = orderedTeams[0]?.score ?? 0;
 
   useEffect(() => {
     const channel = supabase
@@ -94,35 +95,90 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-73px)] lg:grid-cols-[18rem_1fr]">
-      <AdminSidebar showAddPoints={isAdmin} onAddPoints={() => setModalOpen(true)} />
+    <div className="min-h-[calc(100vh-88px)] px-4 py-8 sm:px-6 lg:px-9">
+      <section className="mx-auto max-w-[1404px]">
+        <div className="text-center">
+          <h1 className="page-gradient-title text-5xl sm:text-7xl lg:text-8xl">Mission Rankings</h1>
+          <p className="font-terminal mt-6 text-xl font-bold uppercase tracking-widest text-slate-400">
+            Live team standings // updated every 60 seconds
+          </p>
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="codefest-button signal-button mt-6 px-6 py-3 text-xs"
+            >
+              Add Points
+            </button>
+          ) : null}
+        </div>
 
-      <section className="px-4 py-8 sm:px-6 lg:px-10">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-          <div>
-            <p className="section-kicker">Mission ranking system</p>
-            <h1 className="mission-title mt-3 text-5xl tracking-tight text-white sm:text-7xl">
-              Live Rankings
-            </h1>
-            <div className="mt-4 inline-flex flex-wrap items-center gap-3 border border-red-400/30 bg-red-500/10 px-4 py-2">
-              <span className="relative flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-3 w-3 bg-red-400" />
-              </span>
-              <span className="font-terminal text-xs font-black uppercase tracking-widest text-red-200">Live Broadcast</span>
+        <div className="mt-14 grid gap-7 lg:grid-cols-3">
+          <div className="glass-panel flex items-center gap-5 p-7">
+            <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-lg border border-cyan-300/35 bg-cyan-300/10 text-cyan-300">
+              <Users size={27} />
+            </div>
+            <div className="relative z-10">
+              <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Active Teams</p>
+              <p className="font-display text-3xl font-black text-cyan-300">{orderedTeams.length}</p>
             </div>
           </div>
-
-          <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
-            <CountdownTimer targetDate={targetDate} compact />
-            <div className="glass-panel p-5 text-right">
-              <p className="terminal-label relative z-10">Transmission solved</p>
-              <p className="font-display relative z-10 mt-2 text-3xl font-black text-cyan-200">12/24</p>
+          <div className="glass-panel flex items-center gap-5 p-7">
+            <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-lg border border-emerald-300/35 bg-emerald-300/10 text-emerald-400">
+              <TrendingUp size={27} />
+            </div>
+            <div className="relative z-10">
+              <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Total Submissions</p>
+              <p className="font-display text-3xl font-black text-emerald-400">1,845</p>
+            </div>
+          </div>
+          <div className="glass-panel flex items-center gap-5 p-7">
+            <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-lg border border-amber-300/35 bg-amber-300/10 text-amber-300">
+              <Trophy size={27} />
+            </div>
+            <div className="relative z-10">
+              <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Top Score</p>
+              <p className="font-display text-3xl font-black text-amber-300">{topScore.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 overflow-x-auto">
+        {podiumTeams.length > 0 ? (
+          <div className="mt-14 grid items-end gap-7 lg:grid-cols-3">
+            {podiumTeams.map((team, visualIndex) => {
+              const actualRank = orderedTeams.findIndex((item) => item.id === team.id) + 1;
+              const isWinner = actualRank === 1;
+              const palette =
+                actualRank === 1
+                  ? "border-amber-300/75 bg-amber-950/22 text-amber-300 min-h-[408px]"
+                  : actualRank === 2
+                    ? "border-slate-400/45 bg-slate-300/10 text-slate-300 min-h-[342px]"
+                    : "border-orange-400/55 bg-orange-950/24 text-orange-400 min-h-[342px]";
+              const Mascot = actualRank === 1 ? Rocket : actualRank === 2 ? Brain : Zap;
+
+              return (
+                <article
+                  key={team.id}
+                  className={`leader-podium-card flex flex-col items-center justify-center border p-8 text-center ${palette} ${
+                    visualIndex === 1 ? "lg:-mt-9" : ""
+                  }`}
+                >
+                  <Mascot size={64} strokeWidth={1.8} />
+                  {actualRank === 1 ? <Trophy className="mt-4" size={42} /> : <Medal className="mt-4" size={38} />}
+                  <p className="font-terminal mt-4 text-sm font-bold uppercase tracking-widest">Rank #{actualRank}</p>
+                  <h2 className="font-display mt-3 max-w-[260px] text-2xl font-black text-white">{team.name}</h2>
+                  <p className="font-terminal mt-3 text-sm text-purple-400">Codefest</p>
+                  <p className={`font-display mt-6 font-black ${isWinner ? "text-5xl text-amber-300" : "text-4xl text-slate-300"}`}>
+                    {(team.score ?? 0).toLocaleString()}
+                  </p>
+                  <p className="font-terminal mt-1 text-xs uppercase">XP</p>
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <div className="mt-14 overflow-x-auto">
           <div className="min-w-[820px]">
             <div className="font-terminal grid grid-cols-[110px_1.35fr_1fr_190px] border-b border-cyan-300/15 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-500">
               <span>Rank</span>
@@ -189,13 +245,6 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
             </div>
           </div>
         </div>
-
-        <a
-          href="#teams"
-          className="codefest-button mt-8 inline-flex text-xs text-cyan-200 hover:text-white"
-        >
-          Broadcast details <ArrowUpRight size={14} />
-        </a>
       </section>
 
       {modalOpen ? <AddPointsModal teams={orderedTeams} onClose={() => setModalOpen(false)} onSuccess={refreshTeams} /> : null}
