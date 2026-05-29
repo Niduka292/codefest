@@ -61,18 +61,19 @@ export async function getRecentScoreEvents(limit = 8) {
 export async function getAdminSession() {
   const supabase = await getSupabaseServer();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (error || !user) {
     return { session: null, isAdmin: false };
   }
 
   const { data } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
-  return { session, isAdmin: data?.role === "admin" };
+  return { session: user, isAdmin: data?.role === "admin" };
 }

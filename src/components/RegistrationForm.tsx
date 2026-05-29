@@ -3,7 +3,6 @@
 import { FormEvent, useState } from "react";
 import { CheckCircle2, Plus, Trash2, Zap } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import type { ParticipantInsert } from "@/lib/types";
 
 const languages = ["Python", "Java", "C++", "JavaScript", "HTML", "Other"];
 const maxAdditionalMembers = 4;
@@ -133,33 +132,33 @@ export function RegistrationForm() {
   }
   if (success) {
     return (
-      <div className="relative overflow-hidden border border-cyan-300/40 bg-[#111118] p-8 text-center shadow-[0_0_60px_rgba(34,211,238,0.16)]">
+      <div className="glass-panel scanline p-8 text-center">
         <div className="pointer-events-none absolute inset-0">
           <span className="absolute left-8 top-8 h-2 w-2 animate-ping bg-cyan-300" />
           <span className="absolute right-10 top-16 h-2 w-2 animate-pulse bg-purple-400" />
           <span className="absolute bottom-10 left-1/3 h-2 w-2 animate-ping bg-amber-300" />
         </div>
-        <CheckCircle2 className="mx-auto text-cyan-300" size={58} />
-        <h2 className="font-display mt-6 text-4xl font-black uppercase text-white">Your Team Is In The Arena</h2>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-zinc-400">
-          Your team registration has been recorded. Watch the leaderboard and prepare for the opening signal.
+        <CheckCircle2 className="relative z-10 mx-auto text-cyan-200 drop-shadow-[0_0_18px_rgba(0,229,255,0.5)]" size={58} />
+        <h2 className="mission-title relative z-10 mt-6 text-4xl text-white">Crew Uplink Confirmed</h2>
+        <p className="relative z-10 mx-auto mt-4 max-w-md text-sm leading-7 text-slate-300">
+          Your team registration has been recorded. Watch the mission rankings and prepare for the opening signal.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-[#1f1f2e] bg-[#111118]/95 p-5 shadow-[0_0_50px_rgba(139,92,246,0.1)] sm:p-8">
-      <h2 className="font-display text-3xl font-black uppercase tracking-wide text-white">Team Registration</h2>
-      <p className="mt-2 text-sm text-zinc-500">Team leaders complete entry for the University Finals.</p>
+    <form onSubmit={handleSubmit} className="glass-panel p-5 sm:p-8">
+      <h2 className="mission-title relative z-10 text-3xl text-white">Team Registration</h2>
+      <p className="relative z-10 mt-2 text-sm text-slate-400">Team leaders complete entry for the University Finals.</p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <div className="relative z-10 mt-6 grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`border px-4 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 ${step === 1
-            ? "border-purple-400 bg-purple-500/15 text-white"
-            : "border-[#1f1f2e] bg-black/20 text-zinc-500 hover:text-white"
+          className={`font-terminal border px-4 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 ${step === 1
+            ? "border-purple-300/70 bg-purple-500/20 text-white shadow-violet"
+            : "border-cyan-300/15 bg-black/20 text-slate-500 hover:border-cyan-300/35 hover:text-white"
             }`}
         >
           Step 1 Leader
@@ -167,53 +166,53 @@ export function RegistrationForm() {
         <button
           type="button"
           onClick={(event) => goToMembersStep(event.currentTarget.form as HTMLFormElement)}
-          className={`border px-4 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 ${step === 2
-            ? "border-cyan-300 bg-cyan-300/10 text-white"
-            : "border-[#1f1f2e] bg-black/20 text-zinc-500 hover:text-white"
+          className={`font-terminal border px-4 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 ${step === 2
+            ? "border-cyan-300/70 bg-cyan-300/10 text-white shadow-signal"
+            : "border-cyan-300/15 bg-black/20 text-slate-500 hover:border-cyan-300/35 hover:text-white"
             }`}
         >
           Step 2 Members
         </button>
       </div>
 
-      <div className="mt-8 space-y-5">
+      <div className="relative z-10 mt-8 space-y-5">
         <div className={step === 1 ? "space-y-5" : "hidden"}>
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Team Name</span>
+            <span className="terminal-label mb-2 block">Team Name</span>
             <input name="team_name" type="text" placeholder="TEAM NAME" className="codefest-field" required />
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Team Leader Name</span>
+            <span className="terminal-label mb-2 block">Team Leader Name</span>
             <input name="full_name" type="text" placeholder="TEAM LEADER NAME" className="codefest-field" required />
           </label>
 
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Leader Email Address</span>
+              <span className="terminal-label mb-2 block">Leader Email Address</span>
               <input name="email" type="email" placeholder="LEADER EMAIL ADDRESS" className="codefest-field" required />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Leader Student ID</span>
+              <span className="terminal-label mb-2 block">Leader Student ID</span>
               <input name="student_id" type="text" placeholder="LEADER STUDENT ID" className="codefest-field font-mono" required />
             </label>
           </div>
 
           <div>
-            <span className="mb-3 block text-xs font-bold uppercase tracking-widest text-zinc-500">
+            <span className="terminal-label mb-3 block">
               Programming Languages
             </span>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {languages.map((language) => (
                 <label
                   key={language}
-                  className="flex cursor-pointer items-center gap-3 border border-[#2d2d44] bg-[#1a1a2e] px-4 py-3 text-sm font-bold text-zinc-200 transition-all duration-300 hover:border-purple-400"
+                  className="flex cursor-pointer items-center gap-3 border border-cyan-300/15 bg-cyan-300/[0.04] px-4 py-3 text-sm font-bold text-slate-200 transition-all duration-300 hover:border-purple-300/60 hover:bg-purple-500/10 hover:shadow-violet"
                 >
                   <input
                     type="checkbox"
                     checked={selectedLanguages.includes(language)}
                     onChange={() => toggleLanguage(language)}
-                    className="h-4 w-4 accent-purple-500"
+                    className="h-4 w-4 accent-cyan-300"
                   />
                   {language}
                 </label>
@@ -222,7 +221,7 @@ export function RegistrationForm() {
           </div>
 
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Leader Academic Year</span>
+            <span className="terminal-label mb-2 block">Leader Academic Year</span>
             <select name="academic_year" className="codefest-field" defaultValue="Year 1">
               <option>Year 1</option>
               <option>Year 2</option>
@@ -233,30 +232,30 @@ export function RegistrationForm() {
           <button
             type="button"
             onClick={(event) => goToMembersStep(event.currentTarget.form as HTMLFormElement)}
-            className="codefest-button w-full border border-cyan-300/60 px-5 py-4 text-sm text-cyan-200 hover:bg-cyan-300/10"
+            className="codefest-button ghost-button w-full px-5 py-4 text-sm"
           >
             Continue To Team Members
           </button>
         </div>
 
         <div className={step === 2 ? "space-y-5" : "hidden"}>
-          <div className="border border-purple-400/30 bg-purple-500/10 p-4">
-            <p className="text-xs font-black uppercase tracking-widest text-purple-200">Member 1</p>
-            <p className="mt-2 text-sm text-zinc-400">
+          <div className="hud-frame p-4">
+            <p className="terminal-label text-purple-200">Member 1</p>
+            <p className="mt-2 text-sm text-slate-300">
               The team leader is automatically counted as member 1.
             </p>
           </div>
 
           <div>
             <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span className="block text-xs font-bold uppercase tracking-widest text-zinc-500">
+              <span className="terminal-label block">
                 Additional Team Members
               </span>
               <button
                 type="button"
                 onClick={addTeamMember}
                 disabled={teamMembers.length >= maxAdditionalMembers}
-                className="codefest-button border border-cyan-300/50 px-3 py-2 text-[10px] text-cyan-200 hover:bg-cyan-300/10"
+                className="codefest-button ghost-button px-3 py-2 text-[10px]"
               >
                 <Plus size={14} />
                 Add Member
@@ -265,7 +264,7 @@ export function RegistrationForm() {
 
             <div className="space-y-3">
               {teamMembers.map((member, index) => (
-                <div key={index} className="grid gap-3 border border-[#1f1f2e] bg-black/20 p-3 md:grid-cols-[1fr_0.8fr_auto]">
+                <div key={index} className="grid gap-3 border border-cyan-300/15 bg-black/20 p-3 md:grid-cols-[1fr_0.8fr_auto]">
                   <input
                     type="text"
                     value={member.full_name}
@@ -285,7 +284,7 @@ export function RegistrationForm() {
                     onClick={() => removeTeamMember(index)}
                     disabled={teamMembers.length === 1}
                     aria-label="Remove team member"
-                    className="inline-flex h-12 items-center justify-center border border-red-500/30 px-4 text-red-300 transition-all duration-300 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex h-12 items-center justify-center border border-red-400/30 px-4 text-red-300 transition-all duration-300 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Trash2 size={17} />
                   </button>
@@ -293,7 +292,7 @@ export function RegistrationForm() {
               ))}
             </div>
 
-            <p className="mt-2 text-xs uppercase tracking-widest text-zinc-600">
+            <p className="font-terminal mt-2 text-xs uppercase tracking-widest text-slate-600">
               Add up to {maxAdditionalMembers} more members.
             </p>
           </div>
@@ -302,14 +301,14 @@ export function RegistrationForm() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="codefest-button border border-[#2d2d44] px-5 py-4 text-sm text-zinc-300 hover:border-purple-400 hover:text-white"
+              className="codefest-button border border-purple-300/25 px-5 py-4 text-sm text-slate-300 hover:border-purple-300/70 hover:text-white"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="codefest-button w-full bg-gradient-to-r from-purple-600 to-cyan-500 px-5 py-4 text-sm text-white shadow-[0_0_36px_rgba(139,92,246,0.2)] hover:scale-[1.01]"
+              className="codefest-button signal-button w-full px-5 py-4 text-sm"
             >
               {loading ? "Entering..." : "Enter The Arena"}
               <Zap size={16} />
@@ -318,9 +317,9 @@ export function RegistrationForm() {
         </div>
       </div>
 
-      {error ? <p className="mt-5 border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="relative z-10 mt-5 border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
 
-      <p className="mt-4 text-center text-xs leading-6 text-zinc-600">
+      <p className="font-terminal relative z-10 mt-4 text-center text-xs leading-6 text-slate-600">
         By submitting, you agree to competition rules, eligibility review, and event communications.
       </p>
     </form>

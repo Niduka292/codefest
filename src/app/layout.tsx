@@ -14,8 +14,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "CODEFEST | University CS Showdown",
-  description: "The ultimate university-wide CS showdown.",
+  title: "CODEFEST | Voyager-1 Transmission",
+  description: "A classified interstellar computer science mission.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full bg-[#0a0a0f] text-white">
+      <body className="mission-shell min-h-full bg-void text-white">
         <Navbar />
         <main className="min-h-screen">{children}</main>
       </body>

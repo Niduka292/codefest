@@ -15,10 +15,10 @@ type LeaderboardClientProps = {
 };
 
 function rankColor(index: number) {
-  if (index === 0) return "text-amber-300 border-amber-300 shadow-[0_0_28px_rgba(245,158,11,0.12)]";
-  if (index === 1) return "text-cyan-300 border-cyan-300";
-  if (index === 2) return "text-purple-300 border-purple-300";
-  return "text-zinc-400 border-[#1f1f2e]";
+  if (index === 0) return "text-amber-200 border-amber-300/70 shadow-amber";
+  if (index === 1) return "text-cyan-200 border-cyan-300/60";
+  if (index === 2) return "text-purple-200 border-purple-300/60";
+  return "text-slate-400 border-cyan-300/15";
 }
 
 function memberInitials(team: Team) {
@@ -52,6 +52,7 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
     () => [...teams].sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
     [teams],
   );
+  const maxScore = Math.max(1, ...orderedTeams.map((team) => team.score ?? 0));
 
   useEffect(() => {
     const channel = supabase
@@ -99,34 +100,35 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
       <section className="px-4 py-8 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <h1 className="font-display text-5xl font-black uppercase tracking-tight text-white sm:text-7xl">
+            <p className="section-kicker">Mission ranking system</p>
+            <h1 className="mission-title mt-3 text-5xl tracking-tight text-white sm:text-7xl">
               Live Rankings
             </h1>
-            <div className="mt-4 inline-flex flex-wrap items-center gap-3 border border-red-500/30 bg-red-500/10 px-4 py-2">
+            <div className="mt-4 inline-flex flex-wrap items-center gap-3 border border-red-400/30 bg-red-500/10 px-4 py-2">
               <span className="relative flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping bg-red-500 opacity-75" />
-                <span className="relative inline-flex h-3 w-3 bg-red-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping bg-red-400 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 bg-red-400" />
               </span>
-              <span className="text-xs font-black uppercase tracking-widest text-red-200">Live Broadcast</span>
+              <span className="font-terminal text-xs font-black uppercase tracking-widest text-red-200">Live Broadcast</span>
             </div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
             <CountdownTimer targetDate={targetDate} compact />
-            <div className="border border-[#1f1f2e] bg-[#111118] p-5 text-right">
-              <p className="text-xs font-black uppercase tracking-widest text-zinc-500">Total Problems</p>
-              <p className="font-display mt-2 text-3xl font-black text-cyan-300">12/24 Solved</p>
+            <div className="glass-panel p-5 text-right">
+              <p className="terminal-label relative z-10">Transmission solved</p>
+              <p className="font-display relative z-10 mt-2 text-3xl font-black text-cyan-200">12/24</p>
             </div>
           </div>
         </div>
 
         <div className="mt-10 overflow-x-auto">
           <div className="min-w-[820px]">
-            <div className="grid grid-cols-[110px_1.5fr_1fr_170px] border-b border-[#1f1f2e] px-5 py-3 text-xs font-black uppercase tracking-widest text-zinc-500">
+            <div className="font-terminal grid grid-cols-[110px_1.35fr_1fr_190px] border-b border-cyan-300/15 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-500">
               <span>Rank</span>
               <span>Team Name</span>
               <span>Members</span>
-              <span className="text-right">Total Score</span>
+              <span className="text-right">Signal Strength</span>
             </div>
 
             <div className="mt-3 space-y-3">
@@ -140,39 +142,47 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
                   return (
                     <div
                       key={team.id}
-                      className={`grid grid-cols-[110px_1.5fr_1fr_170px] items-center border-l-4 bg-[#111118]/95 px-5 py-5 transition-all duration-300 hover:bg-[#161622] ${
-                        index === 0 ? `border border-amber-300/70 ${colors}` : colors
+                      className={`glass-panel grid grid-cols-[110px_1.35fr_1fr_190px] items-center border-l-4 px-5 py-5 transition-all duration-300 hover:border-cyan-300/45 hover:shadow-signal ${
+                        index === 0 ? `scanline ${colors}` : colors
                       }`}
                     >
-                      <div className={`font-display text-4xl font-black ${colors.split(" ")[0]}`}>
+                      <div className={`relative z-10 font-display text-4xl font-black ${colors.split(" ")[0]}`}>
                         {String(index + 1).padStart(2, "0")}
                       </div>
-                      <div>
+                      <div className="relative z-10">
                         <p className="font-display text-xl font-bold text-white">{team.name}</p>
-                        <p className="mt-1 font-mono text-xs uppercase tracking-widest text-zinc-500">{latest}</p>
+                        <p className="mt-1 font-mono text-xs uppercase tracking-widest text-slate-500">{latest}</p>
                       </div>
-                      <div className="flex -space-x-2">
+                      <div className="relative z-10 flex -space-x-2">
                         {memberInitials(team).map((initial, avatarIndex) => (
                           <div
                             key={`${team.id}-${initial}-${avatarIndex}`}
-                            className="flex h-10 w-10 items-center justify-center border border-[#0a0a0f] bg-[#1a1a2e] font-mono text-xs font-black text-zinc-200"
+                            className="flex h-10 w-10 items-center justify-center border border-cyan-300/20 bg-cyan-300/10 font-mono text-xs font-black text-cyan-50 shadow-signal"
                           >
                             {initial}
                           </div>
                         ))}
                       </div>
-                      <div
-                        className={`font-display text-right text-3xl font-black text-white transition-all duration-300 ${
-                          highlightedScores[team.id] ? "score-pulse text-cyan-300" : ""
-                        }`}
-                      >
-                        {team.score ?? 0}
+                      <div className="relative z-10">
+                        <div
+                          className={`font-display text-right text-3xl font-black text-white transition-all duration-300 ${
+                            highlightedScores[team.id] ? "score-pulse text-cyan-200" : ""
+                          }`}
+                        >
+                          {team.score ?? 0}
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden bg-white/10">
+                          <div
+                            className="h-full bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 shadow-signal"
+                            style={{ width: `${Math.max(5, Math.round(((team.score ?? 0) / maxScore) * 100))}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div className="border border-[#1f1f2e] bg-[#111118] p-8 text-center text-zinc-400">
+                <div className="glass-panel p-8 text-center text-slate-400">
                   No teams returned from Supabase yet.
                 </div>
               )}
@@ -182,7 +192,7 @@ export function LeaderboardClient({ initialTeams, isAdmin, targetDate }: Leaderb
 
         <a
           href="#teams"
-          className="codefest-button mt-8 inline-flex text-xs text-cyan-300 hover:text-cyan-100"
+          className="codefest-button mt-8 inline-flex text-xs text-cyan-200 hover:text-white"
         >
           Broadcast details <ArrowUpRight size={14} />
         </a>

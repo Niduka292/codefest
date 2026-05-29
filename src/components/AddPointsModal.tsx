@@ -76,26 +76,27 @@ export function AddPointsModal({ teams, onClose, onSuccess }: AddPointsModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg border border-[#1f1f2e] bg-[#111118] p-6 shadow-[0_0_60px_rgba(139,92,246,0.18)]">
-        <div className="flex items-start justify-between gap-4">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 px-4 backdrop-blur-md">
+      <div className="glass-panel scanline w-full max-w-lg p-6">
+        <div className="relative z-10 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-display text-2xl font-black uppercase tracking-wide text-white">Add Points</h2>
-            <p className="mt-1 text-sm text-zinc-500">Record a solve and update the live score.</p>
+            <p className="terminal-label">Mission scoring console</p>
+            <h2 className="mission-title mt-1 text-2xl text-white">Add Points</h2>
+            <p className="mt-1 text-sm text-slate-400">Record a solve and update the live score.</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-zinc-300 transition-all duration-300 hover:border-cyan-300/60 hover:text-cyan-300"
+            className="inline-flex h-10 w-10 items-center justify-center border border-cyan-300/20 text-slate-300 transition-all duration-300 hover:border-cyan-300/60 hover:text-cyan-200"
             aria-label="Close modal"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="relative z-10 mt-6 space-y-4">
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Team</span>
+            <span className="terminal-label mb-2 block">Team</span>
             <select value={teamId} onChange={(event) => setTeamId(event.target.value)} className="codefest-field">
               {teams.map((team) => (
                 <option key={team.id} value={team.id}>
@@ -106,7 +107,7 @@ export function AddPointsModal({ teams, onClose, onSuccess }: AddPointsModalProp
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">Points to add</span>
+            <span className="terminal-label mb-2 block">Points to add</span>
             <input
               type="number"
               min="1"
@@ -117,7 +118,7 @@ export function AddPointsModal({ teams, onClose, onSuccess }: AddPointsModalProp
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-zinc-500">
+            <span className="terminal-label mb-2 block">
               Reason / solve description
             </span>
             <input
@@ -129,12 +130,12 @@ export function AddPointsModal({ teams, onClose, onSuccess }: AddPointsModalProp
             />
           </label>
 
-          {error ? <p className="border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p> : null}
+          {error ? <p className="border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
 
           <button
             type="submit"
             disabled={loading || teams.length === 0}
-            className="codefest-button w-full bg-purple-600 px-5 py-4 text-sm text-white hover:bg-purple-500"
+            className="codefest-button signal-button w-full px-5 py-4 text-sm"
           >
             {loading ? "Adding Points..." : "Add Points"}
           </button>
