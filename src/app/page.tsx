@@ -1,34 +1,33 @@
 import Link from "next/link";
-import { Bug, GitFork, LockKeyhole, Radio, Trophy, Zap } from "lucide-react";
+import { Cpu, GitFork, LockKeyhole, Radio, Zap } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { getTopTeams } from "@/lib/data";
 
 const modules = [
   {
     id: "01",
-    title: "Logic Corruption",
-    type: "Debugging",
-    copy: "Identify and fix corrupted code segments from the alien transmission",
-    icon: Bug,
+    title: "Data Structures & Algorithms",
+    type: "Core CS",
+    copy: "Optimize data layout, dynamic programming, tree traversals, graph search, and algorithmic complexity.",
+    icon: GitFork,
     status: "ACTIVE",
     color: "cyan",
   },
   {
     id: "02",
-    title: "Quantum Network",
-    type: "Networking",
-    copy: "Route packets through a multi-dimensional network topology",
-    icon: GitFork,
-    status: "LOCKED",
+    title: "Computer Security",
+    type: "Cybersecurity",
+    copy: "Cryptographic protocol analysis, vulnerability exploitation, payload defense, and reverse engineering.",
+    icon: LockKeyhole,
+    status: "ACTIVE",
     color: "purple",
   },
   {
     id: "03",
-    title: "Cipher Protocols",
-    type: "Cryptography",
-    copy: "Decrypt alien encryption algorithms using known cryptographic methods",
-    icon: LockKeyhole,
-    status: "LOCKED",
+    title: "Computer System Organization",
+    type: "Systems & Hardware",
+    copy: "Low-level memory management, assembly instructions, CPU architecture, and operating system kernels.",
+    icon: Cpu,
+    status: "ACTIVE",
     color: "amber",
   },
 ];
@@ -36,7 +35,6 @@ const modules = [
 export default async function Home() {
   const targetDate = new Date();
   targetDate.setDate(targetDate.getDate() + 8);
-  const topTeams = await getTopTeams(2);
 
   return (
     <div className="overflow-hidden">
@@ -47,7 +45,7 @@ export default async function Home() {
             Signal Detected
           </div>
 
-          <h1 className="page-gradient-title mt-11 max-w-[1180px] text-[4.4rem] sm:text-[7.8rem] lg:text-[8.2rem] xl:text-[7.3rem] 2xl:text-[8.6rem]">
+          <h1 className="page-gradient-title mt-7 max-w-[1180px] text-[2.4rem] leading-[1.08] sm:mt-11 sm:text-[5.5rem] sm:leading-[0.94] md:text-[6.8rem] lg:text-[7.8rem] xl:text-[7rem] 2xl:text-[8.2rem]">
             Voyager-1 Has
             <br />
             Received A
@@ -55,9 +53,9 @@ export default async function Home() {
             Response
           </h1>
 
-          <p className="mt-9 max-w-[940px] text-2xl font-medium leading-[1.65] text-slate-400">
-            After 47 years in deep space, Voyager-1 has detected an extraterrestrial transmission. Your mission: solve
-            interconnected CS puzzles to decode the message.
+          <p className="mt-9 max-w-[900px] text-lg font-normal leading-8 text-slate-400 sm:text-xl">
+            After 47 years in deep space, Voyager-1 detects an extraterrestrial transmission. Your mission: solve interconnected CS
+            puzzles to decode the message.
           </p>
 
           <p className="font-terminal mt-10 text-xl font-bold uppercase tracking-wider text-cyan-300">
@@ -73,29 +71,29 @@ export default async function Home() {
       <section id="events" className="px-4 pb-20 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1240px]">
           <div className="text-center">
-            <h2 className="page-gradient-title text-5xl sm:text-7xl lg:text-8xl">Mission Modules</h2>
+            <h2 className="page-gradient-title text-5xl sm:text-7xl lg:text-8xl">Knowledge Areas</h2>
             <p className="font-terminal mt-5 text-xl font-bold uppercase tracking-widest text-slate-400">
-              Complete challenges to unlock the final cipher
+              Core computer science domains tested in this competition
             </p>
           </div>
 
           <div className="glass-panel mt-16 p-8">
             <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto_auto] lg:items-center">
               <div>
-                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Mission Progress</p>
-                <p className="font-display mt-3 text-3xl font-black uppercase text-cyan-300">3 / 10 Modules Active</p>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Competition Domains</p>
+                <p className="font-display mt-3 text-3xl font-black uppercase text-cyan-300">3 Core Subject Areas</p>
               </div>
               <div>
-                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Total Points</p>
-                <p className="font-display mt-2 text-2xl font-black text-amber-300">2,275 XP</p>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Challenge Modules</p>
+                <p className="font-display mt-2 text-2xl font-black text-amber-300">Active Protocol</p>
               </div>
               <div>
-                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Completion</p>
-                <p className="font-display mt-2 text-2xl font-black text-emerald-400">0%</p>
+                <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Eligibility</p>
+                <p className="font-display mt-2 text-2xl font-black text-emerald-400">All CS Students</p>
               </div>
             </div>
             <div className="relative z-10 mt-7 h-3 overflow-hidden rounded-full bg-[#030712]">
-              <div className="h-full w-[30%] rounded-full bg-gradient-to-r from-cyan-300 to-purple-400 shadow-signal" />
+              <div className="h-full w-[100%] rounded-full bg-gradient-to-r from-cyan-300 via-purple-400 to-amber-300 shadow-signal" />
             </div>
           </div>
 
@@ -127,7 +125,7 @@ export default async function Home() {
                     </span>
                   </div>
                   <p className="font-terminal mt-8 text-base font-bold uppercase tracking-widest text-slate-500">
-                    Module {module.id}
+                    Domain {module.id}
                   </p>
                   <h3 className="font-display mt-3 text-2xl font-black uppercase text-cyan-300">{module.title}</h3>
                   <p className="font-terminal mt-3 text-base text-purple-400">{module.type}</p>
@@ -137,54 +135,6 @@ export default async function Home() {
               );
             })}
           </div>
-        </div>
-      </section>
-
-      <section id="cipher" className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-[1240px] gap-7 lg:grid-cols-[1fr_1fr]">
-          <article className="glass-panel p-8">
-            <div className="relative z-10 flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-amber-300/40 bg-amber-300/10 text-amber-300">
-                <Trophy size={28} />
-              </div>
-              <div>
-                <p className="font-terminal text-sm font-bold uppercase tracking-widest text-slate-400">Mission reward cache</p>
-                <h2 className="font-display mt-1 text-3xl font-black uppercase text-white">$10,000 Prize Pool</h2>
-              </div>
-            </div>
-            <p className="relative z-10 mt-5 max-w-xl text-lg leading-8 text-slate-400">
-              Scholarships, hardware grants, and finalist awards for teams that survive the alien cipher stack.
-            </p>
-          </article>
-
-          <article className="glass-panel p-8">
-            <div className="relative z-10 flex items-center justify-between gap-4">
-              <div>
-                <p className="font-terminal text-sm font-bold uppercase tracking-widest text-slate-400">Live Mission Feed</p>
-                <h2 className="font-display mt-1 text-3xl font-black uppercase text-white">Top Signals</h2>
-              </div>
-              <Link href="/leaderboard" className="codefest-button ghost-button px-5 py-3 text-xs">
-                Rankings
-              </Link>
-            </div>
-            <div className="relative z-10 mt-6 grid gap-3">
-              {topTeams.length > 0 ? (
-                topTeams.map((team, index) => (
-                  <div key={team.id} className="hud-frame flex items-center justify-between p-4">
-                    <div>
-                      <p className="font-terminal text-xs font-bold uppercase tracking-widest text-slate-500">Rank {index + 1}</p>
-                      <p className="font-display mt-1 text-xl font-bold text-white">{team.name}</p>
-                    </div>
-                    <p className="font-display text-2xl font-black text-cyan-300">{team.score}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="hud-frame p-4 text-sm text-slate-400">
-                  Live teams will appear here as soon as Supabase returns registered competitors.
-                </p>
-              )}
-            </div>
-          </article>
         </div>
       </section>
 

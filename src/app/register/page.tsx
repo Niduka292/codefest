@@ -19,7 +19,7 @@ export default async function RegisterPage() {
             Join The <span className="text-cyan-200 drop-shadow-[0_0_24px_rgba(0,229,255,0.28)]">Decoder</span> Crew.
           </h1>
           <p className="mt-6 max-w-xl text-base leading-8 text-slate-300">
-            Team leaders lock in their squad, declare the operating stack, and get matched into the live Voyager
+            Team leaders lock in their squad, declare the operating stack, and get matched into the live CODEXIA
             transmission pipeline before mission registration closes.
           </p>
 

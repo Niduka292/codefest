@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from "react";
 import { CheckCircle2, Plus, Trash2, Zap } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 const languages = ["Python", "Java", "C++", "JavaScript", "HTML", "Other"];
 const maxAdditionalMembers = 4;
@@ -98,37 +97,36 @@ export function RegistrationForm() {
       return;
     }
 
-    // Single transactional RPC call — all inserts roll back on any error
-    const { error: rpcError } = await supabase.rpc("register_team", {
-      p_team_name: teamName,
-      p_full_name: fullName,
-      p_email: email,
-      p_student_id: studentId,
-      p_programming_languages: selectedLanguages,
-      p_academic_year: academicYear,
-      p_members: cleanedTeamMembers,
-    });
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          team_name: teamName,
+          full_name: fullName,
+          email: email,
+          student_id: studentId,
+          academic_year: academicYear,
+          programming_languages: selectedLanguages,
+          team_members: cleanedTeamMembers,
+        }),
+      });
 
-    if (rpcError) {
-      if (rpcError.message.includes("UNIQUE_VIOLATION")) {
-        if (rpcError.message.includes("email")) {
-          setError("This email is already registered. Each participant can only register once.");
-        } else if (rpcError.message.includes("student_id")) {
-          setError("This student ID is already registered. Each participant can only register once.");
-        } else if (rpcError.message.includes("team")) {
-          setError("This team name is already taken. Please choose a different name.");
-        } else {
-          setError("A duplicate entry was detected. Please check your details.");
-        }
-      } else {
-        setError(rpcError.message);
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setError(data.error || "Failed to submit registration. Please try again.");
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-      return;
-    }
 
-    setSuccess(true);
-    setLoading(false);
+      setSuccess(true);
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected network error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
   if (success) {
     return (

@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Grid2X2, LockKeyhole, Menu, Satellite, Trophy, UserPlus, X } from "lucide-react";
+import { Grid2X2, Menu, Satellite, UserPlus, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navLinks = [
   { href: "/", label: "Mission", icon: Satellite, match: "/" },
-  { href: "/#events", label: "Games", icon: BookOpen, match: "#events" },
-  { href: "/#cipher", label: "Cipher", icon: LockKeyhole, match: "#cipher" },
-  { href: "/leaderboard", label: "Leaderboard", icon: Trophy, match: "/leaderboard" },
   { href: "/register", label: "Register", icon: UserPlus, match: "/register" },
   { href: "/admin/login", label: "Admin", icon: Grid2X2, match: "/admin" },
 ];
@@ -29,8 +26,8 @@ export function Navbar() {
             <Satellite size={38} strokeWidth={2.4} />
           </span>
           <span>
-            <span className="font-terminal block text-2xl font-black uppercase tracking-[0.13em] text-cyan-300">
-              Voyager-1
+            <span className="font-display block text-2xl font-black uppercase tracking-[0.13em] text-cyan-300">
+              CODEXIA
             </span>
             <span className="font-terminal mt-1 block text-[13px] font-bold uppercase tracking-[0.19em] text-slate-400">
               Deep Space Protocol
@@ -38,7 +35,7 @@ export function Navbar() {
           </span>
         </Link>
 
-        <div className="nav-dock hidden flex-1 items-center justify-between p-1 md:flex">
+        <div className="nav-dock hidden items-center gap-2 p-1 md:flex">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const active =
@@ -48,7 +45,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-terminal flex min-w-0 items-center justify-center gap-2 rounded-md px-5 py-3 text-[15px] font-bold tracking-wide transition-all duration-300 ${
+                className={`font-terminal flex items-center justify-center gap-2 rounded-md px-5 py-3 text-[15px] font-bold tracking-wide transition-all duration-300 ${
                   active ? "nav-item-active" : "text-slate-400 hover:bg-cyan-300/10 hover:text-cyan-200"
                 }`}
               >

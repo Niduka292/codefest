@@ -1,0 +1,40 @@
+[
+  {
+    "submitted_at": "2026-09-26T20:04:05.504Z",
+    "team_name": "Byte Warriors",
+    "full_name": "Niduka Jayathunga",
+    "email": "nidukajayathunga886@gmail.com",
+    "student_id": "AS2023525",
+    "academic_year": "Year 3",
+    "programming_languages": [
+      "Python",
+      "Java"
+    ],
+    "team_members": [
+      {
+        "full_name": "Dasun",
+        "student_id": "AS2023521"
+      }
+    ],
+    "id": "reg-1790453045509-q4lj6"
+  },
+  {
+    "submitted_at": "2026-09-26T19:55:09.004Z",
+    "team_name": "Byte Warriors",
+    "full_name": "Niduka Jayathunga",
+    "email": "nidukajayathunga886@gmail.com",
+    "student_id": "AS2023525",
+    "academic_year": "Year 3",
+    "programming_languages": [
+      "Python",
+      "Java"
+    ],
+    "team_members": [
+      {
+        "full_name": "Dasun",
+        "student_id": "AS2023525"
+      }
+    ],
+    "id": "reg-1790452509004-ii262"
+  }
+]

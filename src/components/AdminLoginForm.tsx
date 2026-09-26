@@ -3,7 +3,6 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -16,19 +15,29 @@ export function AdminLoginForm() {
     setError("");
 
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
 
-    if (signInError) {
-      setError(signInError.message);
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setError(data.error || "Invalid login credentials.");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/admin/dashboard");
+      router.refresh();
+    } catch {
+      setError("Connection error. Please try again.");
       setLoading(false);
-      return;
     }
-
-    router.push("/admin/dashboard");
-    router.refresh();
   }
 
   return (
@@ -41,12 +50,14 @@ export function AdminLoginForm() {
 
       <div className="relative z-10 mt-8 space-y-5">
         <label className="block">
-          <span className="terminal-label mb-2 block">Email</span>
-          <input name="email" type="email" placeholder="EMAIL" className="codefest-field" required />
-        </label>
-        <label className="block">
-          <span className="terminal-label mb-2 block">Password</span>
-          <input name="password" type="password" placeholder="PASSWORD" className="codefest-field" required />
+          <span className="terminal-label mb-2 block">Admin Passcode</span>
+          <input
+            name="password"
+            type="password"
+            placeholder="ENTER PASSCODE (default: admin123)"
+            className="codefest-field"
+            required
+          />
         </label>
       </div>
 
