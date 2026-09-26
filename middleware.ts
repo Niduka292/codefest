@@ -1,52 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  });
+  const adminCookie = request.cookies.get("admin_authenticated");
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  // If trying to access admin dashboard without admin_authenticated cookie, redirect to login
+  if (!adminCookie || adminCookie.value !== "true") {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-      },
-    },
-  });
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.user) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", session.user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

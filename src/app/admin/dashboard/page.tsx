@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminDashboardClient } from "@/components/AdminDashboardClient";
-import { getAdminSession, getAllTeams, getRecentScoreEvents } from "@/lib/data";
+import { getAdminSession } from "@/lib/data";
+import { getSavedRegistrations } from "@/lib/registrations";
 
 export default async function AdminDashboardPage() {
   const admin = await getAdminSession();
@@ -13,7 +14,7 @@ export default async function AdminDashboardPage() {
     redirect("/");
   }
 
-  const [teams, scoreEvents] = await Promise.all([getAllTeams(), getRecentScoreEvents()]);
+  const registrations = getSavedRegistrations();
 
-  return <AdminDashboardClient teams={teams} scoreEvents={scoreEvents} />;
+  return <AdminDashboardClient initialRegistrations={registrations} />;
 }

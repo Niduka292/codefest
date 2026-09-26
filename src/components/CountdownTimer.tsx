@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export function CountdownTimer({ targetDate }: { targetDate: Date }) {
+type CountdownTimerProps = {
+  targetDate: Date;
+  compact?: boolean;
+};
+
+export function CountdownTimer({ targetDate, compact = false }: CountdownTimerProps) {
   const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
-    setMounted(true);
-
     function calculate() {
       const diff = targetDate.getTime() - Date.now();
       if (diff <= 0) {
@@ -23,9 +26,17 @@ export function CountdownTimer({ targetDate }: { targetDate: Date }) {
       });
     }
 
-    calculate();
-    const interval = setInterval(calculate, 1000);
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const boot = window.setTimeout(() => {
+      setMounted(true);
+      calculate();
+      interval = setInterval(calculate, 1000);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(boot);
+      if (interval) clearInterval(interval);
+    };
   }, [targetDate]);
 
   // Don't render on server at all — avoids hydration mismatch
@@ -38,14 +49,23 @@ export function CountdownTimer({ targetDate }: { targetDate: Date }) {
     { label: "SECS", value: timeLeft.secs },
   ];
 
+  const valueClassName = compact
+    ? "font-display text-2xl font-black text-white sm:text-3xl"
+    : "font-display text-4xl font-black text-white sm:text-5xl";
+
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className={`grid grid-cols-4 ${compact ? "gap-2" : "gap-3"}`}>
       {units.map((unit) => (
-        <div key={unit.label} className="border border-[#1f1f2e] bg-[#111118] px-4 py-5 text-center">
-          <div className="font-display font-black text-white text-4xl sm:text-5xl">
+        <div
+          key={unit.label}
+          className={`glass-panel scanline text-center ${
+            compact ? "px-3 py-4" : "px-4 py-5"
+          }`}
+        >
+          <div className={`${valueClassName} relative z-10 text-cyan-50 drop-shadow-[0_0_18px_rgba(0,229,255,0.3)]`}>
             {String(unit.value).padStart(2, "0")}
           </div>
-          <div className="mt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+          <div className="font-terminal relative z-10 mt-2 text-[10px] font-bold uppercase tracking-widest text-cyan-200/70">
             {unit.label}
           </div>
         </div>

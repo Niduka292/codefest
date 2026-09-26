@@ -1,80 +1,88 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Grid2X2, Menu, Satellite, UserPlus, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navLinks = [
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/#events", label: "Events" },
-  { href: "/#teams", label: "Teams" },
-  { href: "/admin/login", label: "Admin" },
+  { href: "/", label: "Mission", icon: Satellite, match: "/" },
+  { href: "/register", label: "Register", icon: UserPlus, match: "/register" },
+  { href: "/admin/login", label: "Admin", icon: Grid2X2, match: "/admin" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0f]/72 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+    <header className="nav-shell sticky top-0 z-50">
+      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-6 py-4 lg:px-8">
         <Link
           href="/"
-          className="font-display bg-gradient-to-r from-purple-400 to-cyan-300 bg-clip-text text-2xl font-black tracking-tight text-transparent transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(34,211,238,0.35)]"
+          className="group inline-flex min-w-[250px] items-center gap-4 transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(0,229,255,0.42)]"
         >
-          CODEFEST
+          <span className="text-cyan-300">
+            <Satellite size={38} strokeWidth={2.4} />
+          </span>
+          <span>
+            <span className="font-display block text-2xl font-black uppercase tracking-[0.13em] text-cyan-300">
+              CODEXIA
+            </span>
+            <span className="font-terminal mt-1 block text-[13px] font-bold uppercase tracking-[0.19em] text-slate-400">
+              Deep Space Protocol
+            </span>
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-xs font-bold uppercase tracking-widest text-zinc-300 transition-all duration-300 hover:text-cyan-300"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <div className="nav-dock hidden items-center gap-2 p-1 md:flex">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const active =
+              link.match === "/" ? pathname === "/" : link.match.startsWith("/") && pathname.startsWith(link.match);
 
-        <div className="hidden items-center md:flex">
-          <Link
-            href="/register"
-            className="codefest-button bg-purple-600 px-5 py-3 text-xs text-white shadow-[0_0_28px_rgba(139,92,246,0.24)] hover:bg-purple-500"
-          >
-            Register Now
-          </Link>
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`font-terminal flex items-center justify-center gap-2 rounded-md px-5 py-3 text-[15px] font-bold tracking-wide transition-all duration-300 ${
+                  active ? "nav-item-active" : "text-slate-400 hover:bg-cyan-300/10 hover:text-cyan-200"
+                }`}
+              >
+                <Icon size={18} />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <button
           type="button"
           aria-label="Toggle menu"
           onClick={() => setOpen((value) => !value)}
-          className="inline-flex h-11 w-11 items-center justify-center border border-white/10 bg-white/5 text-white transition-all duration-300 hover:border-cyan-300/60 hover:text-cyan-300 md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-cyan-300/25 bg-cyan-300/10 text-cyan-100 transition-all duration-300 hover:border-cyan-300/70 hover:text-white md:hidden"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 
       {open ? (
-        <div className="border-t border-white/10 bg-[#0a0a0f]/95 px-4 pb-5 pt-2 backdrop-blur-xl md:hidden">
+        <div className="nav-dock mx-4 mb-4 px-3 pb-3 pt-2 md:hidden">
           <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="px-2 py-3 text-xs font-bold uppercase tracking-widest text-zinc-300 transition-all duration-300 hover:text-cyan-300"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              href="/register"
-              onClick={() => setOpen(false)}
-              className="codefest-button mt-2 bg-purple-600 px-5 py-3 text-xs text-white hover:bg-purple-500"
-            >
-              Register Now
-            </Link>
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="font-terminal flex items-center gap-3 rounded-md px-3 py-3 text-sm font-bold text-slate-300 transition-all duration-300 hover:bg-cyan-300/10 hover:text-cyan-200"
+                >
+                  <Icon size={17} />
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       ) : null}
