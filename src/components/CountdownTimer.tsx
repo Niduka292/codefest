@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 type CountdownTimerProps = {
-  targetDate: Date;
+  targetDate: string;
   compact?: boolean;
 };
 
@@ -13,7 +13,7 @@ export function CountdownTimer({ targetDate, compact = false }: CountdownTimerPr
 
   useEffect(() => {
     function calculate() {
-      const diff = targetDate.getTime() - Date.now();
+      const diff = new Date(targetDate).getTime() - Date.now();
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0 });
         return;
