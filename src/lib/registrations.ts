@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { randomUUID } from "crypto";
 
 export type RegistrationRecord = {
@@ -17,20 +18,42 @@ export type RegistrationRecord = {
   }[];
 };
 
-const DATA_FILE_PATH = path.join(process.cwd(), "registrations.json");
+const inMemoryRegistrations: RegistrationRecord[] = [];
 
 export function getSavedRegistrations(): RegistrationRecord[] {
+  // Check process.cwd() registrations.json first
   try {
-    if (!fs.existsSync(DATA_FILE_PATH)) {
-      return [];
+    const localPath = path.join(process.cwd(), "registrations.json");
+    if (fs.existsSync(localPath)) {
+      const fileData = fs.readFileSync(localPath, "utf-8");
+      if (fileData.trim()) {
+        const parsed: unknown = JSON.parse(fileData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed as RegistrationRecord[];
+        }
+      }
     }
-    const fileData = fs.readFileSync(DATA_FILE_PATH, "utf-8");
-    const parsed: unknown = JSON.parse(fileData);
-    return Array.isArray(parsed) ? (parsed as RegistrationRecord[]) : [];
   } catch (err) {
-    console.error("Error reading registrations.json:", err);
-    return [];
+    console.warn("Could not read local registrations.json:", err);
   }
+
+  // Check /tmp registrations.json for serverless envs
+  try {
+    const tmpPath = path.join(os.tmpdir(), "registrations.json");
+    if (fs.existsSync(tmpPath)) {
+      const fileData = fs.readFileSync(tmpPath, "utf-8");
+      if (fileData.trim()) {
+        const parsed: unknown = JSON.parse(fileData);
+        if (Array.isArray(parsed)) {
+          return parsed as RegistrationRecord[];
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Could not read tmp registrations.json:", err);
+  }
+
+  return inMemoryRegistrations;
 }
 
 export function saveRegistrationRecord(record: Omit<RegistrationRecord, "id">): RegistrationRecord {
@@ -41,8 +64,29 @@ export function saveRegistrationRecord(record: Omit<RegistrationRecord, "id">): 
   };
   
   const updated = [newRecord, ...existing];
-  
-  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), "utf-8");
+
+  // Update in-memory fallback array
+  inMemoryRegistrations.length = 0;
+  inMemoryRegistrations.push(...updated);
+
+  // Try writing to /tmp/registrations.json (works on Vercel) and local cwd
+  const targetPaths = [
+    path.join(os.tmpdir(), "registrations.json"),
+    path.join(process.cwd(), "registrations.json"),
+  ];
+
+  for (const targetPath of targetPaths) {
+    try {
+      const dir = path.dirname(targetPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(targetPath, JSON.stringify(updated, null, 2), "utf-8");
+      break;
+    } catch (err) {
+      // Ignore EROFS read-only file system on serverless containers
+    }
+  }
 
   return newRecord;
 }
