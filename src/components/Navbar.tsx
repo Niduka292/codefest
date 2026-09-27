@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Grid2X2, Menu, Satellite, UserPlus, X } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -22,9 +23,13 @@ export function Navbar() {
           href="/"
           className="group inline-flex min-w-[250px] items-center gap-4 transition-all duration-300 hover:drop-shadow-[0_0_18px_rgba(0,229,255,0.42)]"
         >
-          <span className="text-cyan-300">
-            <Satellite size={38} strokeWidth={2.4} />
-          </span>
+          <Image
+            src="/codexia-transparent.png"
+            alt=""
+            width={1280}
+            height={1280}
+            className="h-12 w-12 object-contain drop-shadow-[0_0_12px_rgba(0,229,255,0.38)] sm:h-14 sm:w-14"
+          />
           <span>
             <span className="font-display block text-2xl font-black uppercase tracking-[0.13em] text-cyan-300">
               CODEXIA
