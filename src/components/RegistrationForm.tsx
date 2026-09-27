@@ -1,10 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Plus, Trash2, Zap } from "lucide-react";
-
-const languages = ["Python", "Java", "C++", "JavaScript", "HTML", "Other"];
-const maxAdditionalMembers = 4;
+import {
+  ALLOWED_ACADEMIC_YEARS,
+  ALLOWED_LANGUAGES,
+  MAX_ADDITIONAL_MEMBERS,
+  STUDENT_ID_HELP,
+  STUDENT_ID_PATTERN,
+} from "@/lib/registration-options";
 
 type TeamMember = {
   full_name: string;
@@ -18,6 +22,14 @@ export function RegistrationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [formStartedAt] = useState(() => Date.now());
+  const errorRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
 
   function toggleLanguage(language: string) {
     setSelectedLanguages((current) =>
@@ -35,7 +47,7 @@ export function RegistrationForm() {
 
   function addTeamMember() {
     setTeamMembers((current) =>
-      current.length >= maxAdditionalMembers ? current : [...current, { full_name: "", student_id: "" }],
+      current.length >= MAX_ADDITIONAL_MEMBERS ? current : [...current, { full_name: "", student_id: "" }],
     );
   }
 
@@ -44,7 +56,13 @@ export function RegistrationForm() {
   }
 
   function goToMembersStep(form: HTMLFormElement) {
+    if (!form.reportValidity()) {
+      setError("Please complete all required leader details using the requested format.");
+      return;
+    }
+
     const formData = new FormData(form);
+    const studentId = String(formData.get("student_id") ?? "").trim().toUpperCase();
     const hasLeaderDetails =
       String(formData.get("team_name") ?? "").trim() &&
       String(formData.get("full_name") ?? "").trim() &&
@@ -54,6 +72,11 @@ export function RegistrationForm() {
 
     if (!hasLeaderDetails) {
       setError("Team name, leader details, and at least one language are required.");
+      return;
+    }
+
+    if (!STUDENT_ID_PATTERN.test(studentId)) {
+      setError(STUDENT_ID_HELP);
       return;
     }
 
@@ -97,6 +120,23 @@ export function RegistrationForm() {
       return;
     }
 
+    if (!STUDENT_ID_PATTERN.test(studentId.toUpperCase())) {
+      setError(STUDENT_ID_HELP);
+      setStep(1);
+      setLoading(false);
+      return;
+    }
+
+    const invalidMemberIndex = cleanedTeamMembers.findIndex(
+      (member) => !STUDENT_ID_PATTERN.test(member.student_id.toUpperCase()),
+    );
+
+    if (invalidMemberIndex >= 0) {
+      setError(`Member ${invalidMemberIndex + 2}: ${STUDENT_ID_HELP}`);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/register", {
         method: "POST",
@@ -109,6 +149,8 @@ export function RegistrationForm() {
           academic_year: academicYear,
           programming_languages: selectedLanguages,
           team_members: cleanedTeamMembers,
+          website: String(form.get("website") ?? ""),
+          form_started_at: Number(form.get("form_started_at")),
         }),
       });
 
@@ -147,6 +189,14 @@ export function RegistrationForm() {
 
   return (
     <form onSubmit={handleSubmit} className="glass-panel p-5 sm:p-8">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
+        <label>
+          Leave this field empty
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
+      <input name="form_started_at" type="hidden" value={formStartedAt} />
+
       <h2 className="mission-title relative z-10 text-3xl text-white">Team Registration</h2>
       <p className="relative z-10 mt-2 text-sm text-slate-400">Team leaders complete entry for the University Finals.</p>
 
@@ -173,26 +223,73 @@ export function RegistrationForm() {
         </button>
       </div>
 
+      {error ? (
+        <p
+          ref={errorRef}
+          role="alert"
+          aria-live="assertive"
+          className="relative z-10 mt-5 border border-red-400/40 bg-red-500/10 p-3 text-sm font-medium text-red-200"
+        >
+          {error}
+        </p>
+      ) : null}
+
       <div className="relative z-10 mt-8 space-y-5">
         <div className={step === 1 ? "space-y-5" : "hidden"}>
           <label className="block">
             <span className="terminal-label mb-2 block">Team Name</span>
-            <input name="team_name" type="text" placeholder="TEAM NAME" className="codefest-field" required />
+            <input
+              name="team_name"
+              type="text"
+              placeholder="TEAM NAME"
+              className="codefest-field"
+              minLength={2}
+              maxLength={60}
+              autoComplete="organization"
+              required
+            />
           </label>
 
           <label className="block">
             <span className="terminal-label mb-2 block">Team Leader Name</span>
-            <input name="full_name" type="text" placeholder="TEAM LEADER NAME" className="codefest-field" required />
+            <input
+              name="full_name"
+              type="text"
+              placeholder="TEAM LEADER NAME"
+              className="codefest-field"
+              minLength={2}
+              maxLength={80}
+              autoComplete="name"
+              required
+            />
           </label>
 
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block">
               <span className="terminal-label mb-2 block">Leader Email Address</span>
-              <input name="email" type="email" placeholder="LEADER EMAIL ADDRESS" className="codefest-field" required />
+              <input
+                name="email"
+                type="email"
+                placeholder="LEADER EMAIL ADDRESS"
+                className="codefest-field"
+                maxLength={254}
+                autoComplete="email"
+                required
+              />
             </label>
             <label className="block">
               <span className="terminal-label mb-2 block">Leader Student ID</span>
-              <input name="student_id" type="text" placeholder="LEADER STUDENT ID" className="codefest-field font-mono" required />
+              <input
+                name="student_id"
+                type="text"
+                placeholder="AS202XXXX"
+                className="codefest-field font-mono uppercase"
+                maxLength={9}
+                title={STUDENT_ID_HELP}
+                autoComplete="off"
+                required
+              />
+              <span className="mt-2 block text-xs leading-5 text-slate-400">Format: AS202XXXX · Example: AS2023508</span>
             </label>
           </div>
 
@@ -201,7 +298,7 @@ export function RegistrationForm() {
               Programming Languages
             </span>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {languages.map((language) => (
+              {ALLOWED_LANGUAGES.map((language) => (
                 <label
                   key={language}
                   className="flex cursor-pointer items-center gap-3 border border-cyan-300/15 bg-cyan-300/[0.04] px-4 py-3 text-sm font-bold text-slate-200 transition-all duration-300 hover:border-purple-300/60 hover:bg-purple-500/10 hover:shadow-violet"
@@ -220,10 +317,10 @@ export function RegistrationForm() {
 
           <label className="block">
             <span className="terminal-label mb-2 block">Leader Academic Year</span>
-            <select name="academic_year" className="codefest-field" defaultValue="Year 1">
-              <option>Year 1</option>
-              <option>Year 2</option>
-              <option>Year 3</option>
+            <select name="academic_year" className="codefest-field" defaultValue={ALLOWED_ACADEMIC_YEARS[0]}>
+              {ALLOWED_ACADEMIC_YEARS.map((year) => (
+                <option key={year}>{year}</option>
+              ))}
             </select>
           </label>
 
@@ -252,7 +349,7 @@ export function RegistrationForm() {
               <button
                 type="button"
                 onClick={addTeamMember}
-                disabled={teamMembers.length >= maxAdditionalMembers}
+                disabled={teamMembers.length >= MAX_ADDITIONAL_MEMBERS}
                 className="codefest-button ghost-button px-3 py-2 text-[10px]"
               >
                 <Plus size={14} />
@@ -268,14 +365,22 @@ export function RegistrationForm() {
                     value={member.full_name}
                     onChange={(event) => updateTeamMember(index, "full_name", event.target.value)}
                     placeholder={`MEMBER ${index + 2} FULL NAME`}
+                    aria-label={`Member ${index + 2} full name`}
                     className="codefest-field"
+                    minLength={2}
+                    maxLength={80}
+                    autoComplete="off"
                   />
                   <input
                     type="text"
                     value={member.student_id}
                     onChange={(event) => updateTeamMember(index, "student_id", event.target.value)}
-                    placeholder="STUDENT ID"
-                    className="codefest-field font-mono"
+                    placeholder="AS202XXXX"
+                    aria-label={`Member ${index + 2} student ID`}
+                    className="codefest-field font-mono uppercase"
+                    maxLength={9}
+                    title={STUDENT_ID_HELP}
+                    autoComplete="off"
                   />
                   <button
                     type="button"
@@ -291,7 +396,7 @@ export function RegistrationForm() {
             </div>
 
             <p className="font-terminal mt-2 text-xs uppercase tracking-widest text-slate-600">
-              Add up to {maxAdditionalMembers} more members.
+              Add up to {MAX_ADDITIONAL_MEMBERS} more members. Student ID format: AS202XXXX (example: AS2023508).
             </p>
           </div>
 
@@ -314,8 +419,6 @@ export function RegistrationForm() {
           </div>
         </div>
       </div>
-
-      {error ? <p className="relative z-10 mt-5 border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
 
       <p className="font-terminal relative z-10 mt-4 text-center text-xs leading-6 text-slate-600">
         By submitting, you agree to competition rules, eligibility review, and event communications.

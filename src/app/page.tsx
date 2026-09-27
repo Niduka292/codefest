@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Cpu, GitFork, LockKeyhole, Radio, Zap } from "lucide-react";
+import { CalendarDays, Clock3, Cpu, GitFork, LockKeyhole, MapPin, Radio, Zap } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { CODEXIA_EVENT } from "@/lib/event";
 
 const modules = [
   {
@@ -33,38 +35,78 @@ const modules = [
 ];
 
 export default async function Home() {
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + 8);
-
   return (
     <div className="overflow-hidden">
-      <section className="relative flex min-h-[calc(100vh-88px)] items-start justify-center px-4 pb-10 pt-6 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-[1240px] flex-col items-center text-center">
-          <div className="status-pill font-terminal inline-flex items-center gap-3 px-6 py-3 text-base font-bold uppercase tracking-wider">
-            <Radio size={18} />
-            Signal Detected
+      <section className="relative flex min-h-[calc(100vh-88px)] items-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-full max-w-[1240px] gap-10 lg:grid-cols-[1.18fr_0.82fr] lg:items-center">
+          <div className="text-center lg:text-left">
+            <div className="status-pill font-terminal inline-flex items-center gap-3 px-5 py-2.5 text-sm font-bold uppercase tracking-wider">
+              <Radio size={17} />
+              CODEXIA 2026 • CS Event
+            </div>
+
+            <h1 className="page-gradient-title mt-6 text-[2.65rem] leading-[1.02] sm:text-[4.7rem] lg:text-[5.2rem] xl:text-[5.7rem]">
+              Voyager-1 Has
+              <br />
+              Received A Response
+            </h1>
+
+            <p className="mt-6 max-w-[760px] text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
+              An extraterrestrial transmission has reached Earth. Assemble your team and solve interconnected computer science
+              challenges to decode the message.
+            </p>
+
+            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+              <Link href="/register" className="codefest-button signal-button w-full px-8 py-4 text-sm sm:w-auto">
+                Register Your Team
+                <Zap size={17} />
+              </Link>
+              <a href="#events" className="codefest-button ghost-button w-full px-8 py-4 text-sm sm:w-auto">
+                Explore Challenges
+              </a>
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="hud-frame px-2 py-3 text-center sm:px-4 lg:text-left">
+                <CalendarDays className="mx-auto text-cyan-300 lg:mx-0" size={20} />
+                <p className="font-terminal mt-2 text-[9px] font-bold uppercase tracking-widest text-slate-500">Date</p>
+                <p className="mt-1 text-xs font-bold text-white sm:text-sm">{CODEXIA_EVENT.dateLabel}</p>
+              </div>
+              <div className="hud-frame px-2 py-3 text-center sm:px-4 lg:text-left">
+                <Clock3 className="mx-auto text-purple-300 lg:mx-0" size={20} />
+                <p className="font-terminal mt-2 text-[9px] font-bold uppercase tracking-widest text-slate-500">Time</p>
+                <p className="mt-1 text-xs font-bold text-white sm:text-sm">{CODEXIA_EVENT.timeLabel}</p>
+              </div>
+              <div className="hud-frame px-2 py-3 text-center sm:px-4 lg:text-left">
+                <MapPin className="mx-auto text-amber-300 lg:mx-0" size={20} />
+                <p className="font-terminal mt-2 text-[9px] font-bold uppercase tracking-widest text-slate-500">Venue</p>
+                <p className="mt-1 text-xs font-bold text-white sm:text-sm" title={CODEXIA_EVENT.venueLabel}>
+                  {CODEXIA_EVENT.venueShort}
+                </p>
+              </div>
+            </div>
+
           </div>
 
-          <h1 className="page-gradient-title mt-7 max-w-[1180px] text-[2.4rem] leading-[1.08] sm:mt-11 sm:text-[5.5rem] sm:leading-[0.94] md:text-[6.8rem] lg:text-[7.8rem] xl:text-[7rem] 2xl:text-[8.2rem]">
-            Voyager-1 Has
-            <br />
-            Received A
-            <br />
-            Response
-          </h1>
-
-          <p className="mt-9 max-w-[900px] text-lg font-normal leading-8 text-slate-400 sm:text-xl">
-            After 47 years in deep space, Voyager-1 detects an extraterrestrial transmission. Your mission: solve interconnected CS
-            puzzles to decode the message.
-          </p>
-
-          <p className="font-terminal mt-10 text-xl font-bold uppercase tracking-wider text-cyan-300">
-            Mission Begins In
-          </p>
-
-          <div className="mt-5 w-full max-w-[560px]">
-            <CountdownTimer targetDate={targetDate} />
-          </div>
+          <aside className="glass-panel scanline p-5 sm:p-7">
+            <Image
+              src="/codexia-transparent.png"
+              alt="CODEXIA — Level Up Your Logic"
+              width={1280}
+              height={1280}
+              preload
+              className="relative z-10 mx-auto h-auto w-full max-w-[300px] drop-shadow-[0_0_30px_rgba(0,229,255,0.2)]"
+            />
+            <p className="font-terminal relative z-10 mt-3 text-center text-sm font-bold uppercase tracking-wider text-cyan-300">
+              Mission Begins In
+            </p>
+            <div className="relative z-10 mt-4">
+              <CountdownTimer targetDate={CODEXIA_EVENT.startsAt} compact />
+            </div>
+            <p className="font-terminal relative z-10 mt-4 text-center text-[10px] uppercase tracking-widest text-slate-400">
+              {CODEXIA_EVENT.venueLabel}
+            </p>
+          </aside>
         </div>
       </section>
 

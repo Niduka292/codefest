@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 
 export type RegistrationRecord = {
   id: string;
@@ -24,7 +25,8 @@ export function getSavedRegistrations(): RegistrationRecord[] {
       return [];
     }
     const fileData = fs.readFileSync(DATA_FILE_PATH, "utf-8");
-    return JSON.parse(fileData);
+    const parsed: unknown = JSON.parse(fileData);
+    return Array.isArray(parsed) ? (parsed as RegistrationRecord[]) : [];
   } catch (err) {
     console.error("Error reading registrations.json:", err);
     return [];
@@ -35,16 +37,12 @@ export function saveRegistrationRecord(record: Omit<RegistrationRecord, "id">): 
   const existing = getSavedRegistrations();
   const newRecord: RegistrationRecord = {
     ...record,
-    id: `reg-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    id: `reg-${randomUUID()}`,
   };
   
   const updated = [newRecord, ...existing];
   
-  try {
-    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Error writing registrations.json:", err);
-  }
+  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), "utf-8");
 
   return newRecord;
 }
