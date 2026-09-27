@@ -123,7 +123,7 @@ export default async function Home() {
             <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto_auto] lg:items-center">
               <div>
                 <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Competition Domains</p>
-                <p className="font-display mt-3 text-3xl font-black uppercase text-cyan-300">3 Core Subject Areas</p>
+                <p className="font-display mt-3 text-3xl font-black uppercase text-cyan-300">Core Subject Areas</p>
               </div>
               <div>
                 <p className="font-terminal text-base font-bold uppercase tracking-widest text-slate-400">Challenge Modules</p>
