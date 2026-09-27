@@ -23,7 +23,7 @@ The event values displayed by the website are stored in [`src/lib/event.ts`](src
 - Duplicate team name, email, and student ID checks
 - Request-size and same-origin protection
 - Rate limiting, submission timing checks, and a bot honeypot
-- Optional Google Sheets synchronization
+- Google Sheets as the production registration store
 - Organizer dashboard for viewing registrations
 - Mobile-friendly layouts and accessible form errors
 
@@ -50,9 +50,10 @@ The event values displayed by the website are stored in [`src/lib/event.ts`](src
    ```env
    ADMIN_PASSCODE=replace-with-a-strong-passcode
    GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+   SHEETS_API_SECRET=replace-with-a-long-random-secret
    ```
 
-   `GOOGLE_SHEETS_WEBHOOK_URL` is optional. Do not use a `NEXT_PUBLIC_` prefix for either value because these are server-side secrets.
+   Google Sheets registration configuration is required in production. Use the same `SHEETS_API_SECRET` in the Apps Script project settings. Do not use a `NEXT_PUBLIC_` prefix because these values must remain server-side.
 
 4. Start the development server:
 
@@ -85,9 +86,9 @@ Shared form options are defined in [`src/lib/registration-options.ts`](src/lib/r
 
 ## Registration storage
 
-Registrations are currently stored in `registrations.json` and can optionally be forwarded to Google Sheets. Follow [`GOOGLE_SHEETS_SETUP.md`](GOOGLE_SHEETS_SETUP.md) to configure the spreadsheet webhook.
+Google Sheets is the primary registration store in production. The Apps Script checks duplicate team names, email addresses, and student IDs atomically before appending a row. The admin dashboard and participant counter read from that same sheet. The `Leaderboard` tab supplies live scores to the public and admin leaderboard views. Follow [`GOOGLE_SHEETS_SETUP.md`](GOOGLE_SHEETS_SETUP.md) to configure both features.
 
-Local JSON storage is suitable for local development and a single persistent server. For a production deployment with multiple instances or an ephemeral filesystem, migrate registrations and rate limits to a shared database and data store such as PostgreSQL and Redis.
+When the Google Sheets variables are absent in development, the app falls back to `registrations.json` so local testing still works. Production intentionally returns a configuration error instead of trying to write to an ephemeral filesystem.
 
 ## Admin dashboard
 
@@ -135,9 +136,10 @@ src/
   components/                   Shared interface components
   lib/
     event.ts                    Event date, time, and venue
+    google-sheets.ts            Production registration persistence
     registration-options.ts     Shared registration rules
     registration-schema.ts      Server-side validation schema
-    registrations.ts            Local registration persistence
+    registrations.ts            Development-only JSON fallback
 public/
   codexia-transparent.png       Active CODEXIA logo
 ```

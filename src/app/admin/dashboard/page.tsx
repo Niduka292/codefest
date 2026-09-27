@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminDashboardClient } from "@/components/AdminDashboardClient";
 import { getAdminSession } from "@/lib/data";
-import { getSavedRegistrations } from "@/lib/registrations";
+import { getRegistrationRecords } from "@/lib/google-sheets";
 import { fetchLiveLeaderboard } from "@/lib/leaderboard";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ export default async function AdminDashboardPage() {
     redirect("/");
   }
 
-  const registrations = getSavedRegistrations();
+  const registrations = await getRegistrationRecords();
   const { teams } = await fetchLiveLeaderboard();
 
   return (

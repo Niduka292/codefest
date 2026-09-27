@@ -1,5 +1,19 @@
 [
   {
+    "team_name": "bots",
+    "full_name": "Mihiths",
+    "email": "mihitha2003@gmail.com",
+    "student_id": "AS2023513",
+    "academic_year": "Year 3",
+    "programming_languages": [
+      "Python",
+      "Java"
+    ],
+    "team_members": [],
+    "submitted_at": "2026-09-27T11:20:45.423Z",
+    "id": "reg-611a88b7-fb22-47eb-adbb-7c57ecc851e9"
+  },
+  {
     "submitted_at": "2026-09-26T20:04:05.504Z",
     "team_name": "Byte Warriors",
     "full_name": "Niduka Jayathunga",

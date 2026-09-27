@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSavedRegistrations, saveRegistrationRecord } from "@/lib/registrations";
+import { RegistrationStorageError, saveRegistrationToPrimaryStorage } from "@/lib/google-sheets";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { registrationSchema, type ValidatedRegistration } from "@/lib/registration-schema";
+import { registrationSchema } from "@/lib/registration-schema";
 
 export const runtime = "nodejs";
 
@@ -12,37 +12,6 @@ const MAX_FORM_AGE_MS = 24 * 60 * 60 * 1000;
 function getClientKey(request: NextRequest) {
   const forwardedAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   return forwardedAddress || request.headers.get("x-real-ip") || "unknown-client";
-}
-
-function canonical(value: string) {
-  return value.trim().replace(/\s+/g, " ").toLowerCase();
-}
-
-function findDuplicate(registration: ValidatedRegistration) {
-  const registrations = getSavedRegistrations();
-  const submittedIds = new Set([
-    registration.student_id,
-    ...registration.team_members.map((member) => member.student_id),
-  ]);
-
-  for (const existing of registrations) {
-    if (canonical(existing.team_name) === canonical(registration.team_name)) {
-      return "That team name is already registered.";
-    }
-
-    if (canonical(existing.email) === canonical(registration.email)) {
-      return "A registration already exists for this email address.";
-    }
-
-    const existingIds = [existing.student_id, ...(existing.team_members ?? []).map((member) => member.student_id)]
-      .map((studentId) => studentId.trim().toUpperCase());
-
-    if (existingIds.some((studentId) => submittedIds.has(studentId))) {
-      return "One or more student IDs have already been registered.";
-    }
-  }
-
-  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -110,11 +79,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const duplicateError = findDuplicate(parsed.data);
-  if (duplicateError) {
-    return NextResponse.json({ error: duplicateError }, { status: 409 });
-  }
-
   const registration = {
     team_name: parsed.data.team_name,
     full_name: parsed.data.full_name,
@@ -126,52 +90,22 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    const savedRecord = saveRegistrationRecord({
-      submitted_at: new Date().toISOString(),
-      ...registration,
-    });
-
-    const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-    let webhookStatus = "not_configured";
-
-    if (webhookUrl?.trim()) {
-      try {
-        const formattedMembers = savedRecord.team_members
-          .map((member) => `${member.full_name} (${member.student_id})`)
-          .join("; ");
-
-        const formParams = new URLSearchParams();
-        formParams.append("submitted_at", savedRecord.submitted_at);
-        formParams.append("team_name", savedRecord.team_name);
-        formParams.append("full_name", savedRecord.full_name);
-        formParams.append("email", savedRecord.email);
-        formParams.append("student_id", savedRecord.student_id);
-        formParams.append("academic_year", savedRecord.academic_year);
-        formParams.append("programming_languages", savedRecord.programming_languages.join(", "));
-        formParams.append("team_members", formattedMembers);
-
-        const response = await fetch(webhookUrl.trim(), {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: formParams.toString(),
-          redirect: "follow",
-        });
-
-        webhookStatus = response.ok ? "success" : `failed_status_${response.status}`;
-      } catch (error) {
-        console.error("Error forwarding registration to the configured webhook:", error);
-        webhookStatus = "webhook_error";
-      }
-    }
+    const savedRecord = await saveRegistrationToPrimaryStorage(registration);
 
     return NextResponse.json({
       success: true,
       message: "Team registration recorded successfully.",
       registrationId: savedRecord.id,
-      webhookStatus,
+      storage: process.env.NODE_ENV === "production" ? "google_sheets" : "configured_primary",
     });
   } catch (error) {
     console.error("Registration error:", error);
+
+    if (error instanceof RegistrationStorageError) {
+      const status = error.code === "duplicate" ? 409 : error.code === "not_configured" ? 503 : 502;
+      return NextResponse.json({ error: error.message }, { status });
+    }
+
     return NextResponse.json({ error: "Failed to save registration. Please try again." }, { status: 500 });
   }
 }

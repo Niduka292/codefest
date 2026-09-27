@@ -1,6 +1,8 @@
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { getParticipantCount } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+
 function initials(name: string) {
   return name.slice(0, 2).toUpperCase();
 }
@@ -35,7 +37,7 @@ export default async function RegisterPage() {
               ))}
             </div>
             <p className="font-terminal relative z-10 text-xs font-black uppercase tracking-widest text-slate-300">
-              {participantCount}+ registrations already enrolled
+              {participantCount} participants already enrolled
             </p>
           </div>
         </section>

@@ -133,9 +133,9 @@ export function AdminDashboardClient({
                     <FileSpreadsheet size={26} />
                   </div>
                   <div>
-                    <h3 className="font-display text-xl font-bold text-white">Google Spreadsheet Sync Active</h3>
+                    <h3 className="font-display text-xl font-bold text-white">Google Sheets Primary Storage</h3>
                     <p className="mt-1 text-sm text-slate-300">
-                      Signups are saved in <code className="text-cyan-300">registrations.json</code> and forwarded to your Google Sheet URL.
+                      Registrations are saved to the configured Google Sheet and loaded here on every dashboard request.
                     </p>
                   </div>
                 </div>

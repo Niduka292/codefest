@@ -1,5 +1,8 @@
+import { getRegistrationRecords } from "@/lib/google-sheets";
+
 export async function getParticipantCount(): Promise<number> {
-  return 42;
+  const registrations = await getRegistrationRecords();
+  return registrations.reduce((total, registration) => total + 1 + registration.team_members.length, 0);
 }
 
 export async function getAdminSession() {
