@@ -1,9 +1,8 @@
 export const CODEXIA_EVENT = {
   name: "CODEXIA 2026",
-  tagline: "Level Up Your Logic",
-  dateLabel: "OCTOBER 15, 2026",
-  timeLabel: "09:00 AM - 05:00 PM",
-  venueLabel: "Main Auditorium, Computer Science Building",
-  venueShort: "CS Building",
-  startsAt: new Date("2026-10-15T09:00:00"),
-};
+  startsAt: "2026-10-08T14:00:00+05:30",
+  dateLabel: "8 October 2026",
+  timeLabel: "2:00 PM",
+  venueShort: "NFC 3",
+  venueLabel: "New Faculty Complex 3",
+} as const;

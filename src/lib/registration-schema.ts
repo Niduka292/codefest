@@ -1,67 +1,55 @@
-export type ValidatedRegistration = {
-  team_name: string;
-  full_name: string;
-  email: string;
-  student_id: string;
-  academic_year: string;
-  programming_languages: string[];
-  team_members: {
-    full_name: string;
-    student_id: string;
-  }[];
-  form_started_at: number;
-};
+import { z } from "zod";
+import {
+  ALLOWED_ACADEMIC_YEARS,
+  ALLOWED_LANGUAGES,
+  MAX_ADDITIONAL_MEMBERS,
+  STUDENT_ID_HELP,
+  STUDENT_ID_PATTERN,
+} from "@/lib/registration-options";
 
-export const registrationSchema = {
-  safeParse(data: unknown): { success: true; data: ValidatedRegistration } | { success: false; error: { issues: { message: string }[] } } {
-    if (typeof data !== "object" || data === null) {
-      return { success: false, error: { issues: [{ message: "Invalid payload" }] } };
+const studentIdSchema = z
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .pipe(z.string().regex(STUDENT_ID_PATTERN, STUDENT_ID_HELP));
+
+const teamMemberSchema = z
+  .object({
+    full_name: z.string().trim().min(2, "Member names must contain at least 2 characters.").max(80),
+    student_id: studentIdSchema,
+  })
+  .strict();
+
+export const registrationSchema = z
+  .object({
+    team_name: z.string().trim().min(2, "Team name must contain at least 2 characters.").max(60),
+    full_name: z.string().trim().min(2, "Leader name must contain at least 2 characters.").max(80),
+    email: z.string().trim().toLowerCase().max(254).email("Enter a valid email address."),
+    student_id: studentIdSchema,
+    academic_year: z.enum(ALLOWED_ACADEMIC_YEARS),
+    programming_languages: z
+      .array(z.enum(ALLOWED_LANGUAGES))
+      .min(1, "Select at least one programming language.")
+      .max(ALLOWED_LANGUAGES.length)
+      .refine((values) => new Set(values).size === values.length, "Programming languages must be unique."),
+    team_members: z.array(teamMemberSchema).max(
+      MAX_ADDITIONAL_MEMBERS,
+      `A team can include no more than ${MAX_ADDITIONAL_MEMBERS} additional members.`,
+    ),
+    website: z.string().max(200).optional().default(""),
+    form_started_at: z.number().int().positive(),
+  })
+  .strict()
+  .superRefine((registration, context) => {
+    const ids = [registration.student_id, ...registration.team_members.map((member) => member.student_id)];
+
+    if (new Set(ids).size !== ids.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["team_members"],
+        message: "Each team member must use a unique student ID.",
+      });
     }
+  });
 
-    const d = data as Record<string, unknown>;
-
-    const team_name = String(d.team_name || "").trim();
-    const full_name = String(d.full_name || "").trim();
-    const email = String(d.email || "").trim();
-    const student_id = String(d.student_id || "").trim();
-    const academic_year = String(d.academic_year || "Year 1");
-    const form_started_at = Number(d.form_started_at || Date.now());
-
-    if (!team_name) return { success: false, error: { issues: [{ message: "Team name is required." }] } };
-    if (!full_name) return { success: false, error: { issues: [{ message: "Leader name is required." }] } };
-    if (!email || !email.includes("@")) return { success: false, error: { issues: [{ message: "Valid email is required." }] } };
-    if (!student_id) return { success: false, error: { issues: [{ message: "Student ID is required." }] } };
-
-    const programming_languages = Array.isArray(d.programming_languages)
-      ? d.programming_languages.map(String)
-      : [];
-
-    const rawMembers = Array.isArray(d.team_members) ? d.team_members : [];
-    const team_members = rawMembers
-      .map((m: unknown) => {
-        if (typeof m === "object" && m !== null) {
-          const item = m as Record<string, unknown>;
-          return {
-            full_name: String(item.full_name || "").trim(),
-            student_id: String(item.student_id || "").trim(),
-          };
-        }
-        return { full_name: "", student_id: "" };
-      })
-      .filter((m) => m.full_name && m.student_id);
-
-    return {
-      success: true,
-      data: {
-        team_name,
-        full_name,
-        email,
-        student_id,
-        academic_year,
-        programming_languages,
-        team_members,
-        form_started_at,
-      },
-    };
-  },
-};
+export type ValidatedRegistration = z.infer<typeof registrationSchema>;

@@ -1,18 +1,29 @@
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+type RateLimitEntry = {
+  count: number;
+  resetAt: number;
+};
 
-export function checkRateLimit(key: string, limit = 10, windowMs = 60 * 1000) {
+declare global {
+  var codeXiaRegistrationRateLimits: Map<string, RateLimitEntry> | undefined;
+}
+
+const rateLimits = globalThis.codeXiaRegistrationRateLimits ?? new Map<string, RateLimitEntry>();
+globalThis.codeXiaRegistrationRateLimits = rateLimits;
+
+export function checkRateLimit(key: string, limit = 5, windowMs = 15 * 60 * 1000) {
   const now = Date.now();
-  const record = rateLimitMap.get(key);
+  const existing = rateLimits.get(key);
 
-  if (!record || now > record.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, resetAt: now + windowMs };
+  if (!existing || existing.resetAt <= now) {
+    const resetAt = now + windowMs;
+    rateLimits.set(key, { count: 1, resetAt });
+    return { allowed: true, remaining: limit - 1, resetAt };
   }
 
-  if (record.count >= limit) {
-    return { allowed: false, resetAt: record.resetAt };
+  if (existing.count >= limit) {
+    return { allowed: false, remaining: 0, resetAt: existing.resetAt };
   }
 
-  record.count += 1;
-  return { allowed: true, resetAt: record.resetAt };
+  existing.count += 1;
+  return { allowed: true, remaining: limit - existing.count, resetAt: existing.resetAt };
 }
