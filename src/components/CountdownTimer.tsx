@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 type CountdownTimerProps = {
-  targetDate: string;
+  targetDate: string | Date;
   compact?: boolean;
 };
 
