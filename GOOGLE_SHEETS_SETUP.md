@@ -1,345 +1,145 @@
-# Google Sheets registration and leaderboard setup
+# Google Spreadsheet & Judge Leaderboard Setup Guide
 
-CODEXIA uses Google Sheets as the production source of truth for registrations and as the live scoring source for the leaderboard. One Apps Script web-app deployment supports both features.
+Follow these steps to connect team registrations AND live judge scoring from a Google Spreadsheet to your CODEXIA website.
 
-## 1. Create the spreadsheet
+---
 
-1. Create a blank spreadsheet at [sheets.new](https://sheets.new).
-2. In the spreadsheet, open **Extensions → Apps Script**.
+### Step 1: Create a Google Spreadsheet with 2 Tabs
+Open [Google Sheets](https://sheets.new) and create two tabs at the bottom:
 
-The script creates these tabs and headers automatically:
+1. **Tab 1 Name**: `Registrations`
+   - Headers (Row 1): `Timestamp` | `Team Name` | `Leader Name` | `Leader Email` | `Leader Student ID` | `Academic Year` | `Programming Languages` | `Team Members`
 
-- `Registrations` — team registration records.
-- `Leaderboard` — judge-entered scores.
+2. **Tab 2 Name**: `Leaderboard` (Used by Judges for marking)
+   - Headers (Row 1): `Team Name` | `Data Structures Points` | `Security Points` | `Systems Points` | `Latest Solve`
 
-## 2. Add the Apps Script
+---
 
-Replace the contents of `Code.gs` with this code:
+### Step 2: Add Google Apps Script
+1. Click **Extensions** > **Apps Script**.
+2. Replace all code in `Code.gs` with this script:
 
 ```javascript
 var REGISTRATION_SHEET_NAME = "Registrations";
 var LEADERBOARD_SHEET_NAME = "Leaderboard";
 
-var REGISTRATION_HEADERS = [
-  "Registration ID",
-  "Timestamp",
-  "Team Name",
-  "Leader Name",
-  "Leader Email",
-  "Leader Student ID",
-  "Academic Year",
-  "Programming Languages",
-  "Team Members",
-  "Team Members JSON",
-  "All Student IDs"
-];
-
-var LEADERBOARD_HEADERS = [
-  "Team Name",
-  "Data Structures Points",
-  "Security Points",
-  "Systems Points",
-  "Latest Solve"
-];
-
-function jsonResponse(payload) {
-  return ContentService
-    .createTextOutput(JSON.stringify(payload))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function isAuthorized(secret) {
-  var expected = PropertiesService.getScriptProperties().getProperty("API_SECRET");
-  return Boolean(expected) && String(secret || "") === expected;
-}
-
-function getOrCreateSheet(name, headers) {
-  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = spreadsheet.getSheetByName(name);
-
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet(name);
-  }
-
-  ensureHeaders(sheet, headers);
-  return sheet;
-}
-
-function ensureHeaders(sheet, headers) {
-  var current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-  var matches = headers.every(function (header, index) {
-    return current[index] === header;
-  });
-
-  if (!matches) {
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    sheet.setFrozenRows(1);
-  }
-}
-
-function safeCell(value) {
-  var text = String(value || "");
-  return /^[=+\-@]/.test(text) ? "'" + text : text;
-}
-
-function normalize(value) {
-  return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
-}
-
-function splitStudentIds(value) {
-  return String(value || "")
-    .split(",")
-    .map(function (studentId) { return studentId.trim().toUpperCase(); })
-    .filter(Boolean);
-}
-
-function toIsoString(value) {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  var parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? String(value || "") : parsed.toISOString();
-}
-
-function getRegistrations() {
-  var sheet = getOrCreateSheet(REGISTRATION_SHEET_NAME, REGISTRATION_HEADERS);
-  var rowCount = Math.max(sheet.getLastRow() - 1, 0);
-  var rows = rowCount
-    ? sheet.getRange(2, 1, rowCount, REGISTRATION_HEADERS.length).getValues()
-    : [];
-
-  return rows
-    .filter(function (row) { return String(row[0] || "").trim() !== ""; })
-    .map(function (row) {
-      var members = [];
-      try {
-        members = JSON.parse(String(row[9] || "[]"));
-        if (!Array.isArray(members)) members = [];
-      } catch (error) {
-        members = [];
-      }
-
-      return {
-        id: String(row[0] || ""),
-        submitted_at: toIsoString(row[1]),
-        team_name: String(row[2] || ""),
-        full_name: String(row[3] || ""),
-        email: String(row[4] || ""),
-        student_id: String(row[5] || ""),
-        academic_year: String(row[6] || ""),
-        programming_languages: String(row[7] || "")
-          .split(",")
-          .map(function (language) { return language.trim(); })
-          .filter(Boolean),
-        team_members: members
-      };
-    })
-    .reverse();
-}
-
-function getLeaderboard() {
-  var sheet = getOrCreateSheet(LEADERBOARD_SHEET_NAME, LEADERBOARD_HEADERS);
-  var rowCount = Math.max(sheet.getLastRow() - 1, 0);
-  var rows = rowCount
-    ? sheet.getRange(2, 1, rowCount, LEADERBOARD_HEADERS.length).getValues()
-    : [];
-
-  return rows
-    .filter(function (row) { return String(row[0] || "").trim() !== ""; })
-    .map(function (row) {
-      var dsa = Number(row[1]) || 0;
-      var security = Number(row[2]) || 0;
-      var systems = Number(row[3]) || 0;
-
-      return {
-        name: String(row[0] || ""),
-        dsa_points: dsa,
-        security_points: security,
-        systems_points: systems,
-        total_score: dsa + security + systems,
-        latest_solve: String(row[4] || "PROTOCOL ACTIVE")
-      };
-    });
-}
-
+// doGet returns live Leaderboard scores for the website
 function doGet(e) {
   try {
-    var params = (e && e.parameter) || {};
-
-    if (params.action === "status") {
-      return jsonResponse({ status: "active" });
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(LEADERBOARD_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.getSheets()[0];
     }
 
-    if (params.action === "list") {
-      if (!isAuthorized(params.api_secret)) {
-        return jsonResponse({ status: "error", message: "Unauthorized." });
-      }
+    var data = sheet.getDataRange().getValues();
+    var result = [];
 
-      return jsonResponse({ status: "success", registrations: getRegistrations() });
+    // Skip header row
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      if (!row[0] || String(row[0]).trim() === "") continue;
+
+      var teamName = String(row[0]);
+      var dsa = Number(row[1]) || 0;
+      var sec = Number(row[2]) || 0;
+      var sys = Number(row[3]) || 0;
+      var latestSolve = String(row[4] || "PROTOCOL ACTIVE");
+
+      result.push({
+        name: teamName,
+        dsa_points: dsa,
+        security_points: sec,
+        systems_points: sys,
+        total_score: dsa + sec + sys,
+        latest_solve: latestSolve
+      });
     }
 
-    return jsonResponse(getLeaderboard());
+    return ContentService
+      .createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return jsonResponse({ status: "error", message: String(error) });
+    return ContentService
+      .createTextOutput(JSON.stringify({ error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
+// doPost records new Team Registrations into "Registrations" tab
 function doPost(e) {
-  var lock = LockService.getScriptLock();
-
   try {
-    var data = (e && e.parameter) || {};
-    if (!isAuthorized(data.api_secret)) {
-      return jsonResponse({ status: "error", message: "Unauthorized." });
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(REGISTRATION_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(REGISTRATION_SHEET_NAME);
+      sheet.appendRow([
+        "Timestamp",
+        "Team Name",
+        "Leader Name",
+        "Leader Email",
+        "Leader Student ID",
+        "Academic Year",
+        "Programming Languages",
+        "Team Members"
+      ]);
     }
 
-    var required = [
-      "registration_id",
-      "submitted_at",
-      "team_name",
-      "full_name",
-      "email",
-      "student_id",
-      "academic_year",
-      "programming_languages",
-      "team_members_json",
-      "all_student_ids"
-    ];
-    var missing = required.filter(function (field) {
-      return typeof data[field] !== "string" || data[field].trim() === "";
-    });
-
-    if (missing.length) {
-      return jsonResponse({ status: "error", message: "Missing required registration data." });
-    }
-
-    var parsedMembers;
-    try {
-      parsedMembers = JSON.parse(data.team_members_json);
-      if (!Array.isArray(parsedMembers)) throw new Error("Members must be an array.");
-    } catch (error) {
-      return jsonResponse({ status: "error", message: "Invalid team member data." });
-    }
-
-    lock.waitLock(10000);
-
-    var sheet = getOrCreateSheet(REGISTRATION_SHEET_NAME, REGISTRATION_HEADERS);
-    var rowCount = Math.max(sheet.getLastRow() - 1, 0);
-    var rows = rowCount
-      ? sheet.getRange(2, 1, rowCount, REGISTRATION_HEADERS.length).getValues()
-      : [];
-    var incomingTeam = normalize(data.team_name);
-    var incomingEmail = normalize(data.email);
-    var incomingIds = splitStudentIds(data.all_student_ids);
-
-    for (var index = 0; index < rows.length; index += 1) {
-      var row = rows[index];
-
-      if (normalize(row[2]) === incomingTeam) {
-        return jsonResponse({ status: "duplicate", message: "That team name is already registered." });
-      }
-
-      if (normalize(row[4]) === incomingEmail) {
-        return jsonResponse({ status: "duplicate", message: "A registration already exists for this email address." });
-      }
-
-      var existingIds = splitStudentIds(row[10]);
-      var repeatedId = existingIds.some(function (studentId) {
-        return incomingIds.indexOf(studentId) !== -1;
-      });
-
-      if (repeatedId) {
-        return jsonResponse({ status: "duplicate", message: "One or more student IDs have already been registered." });
+    var data = {};
+    if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+      data = e.parameter;
+    } else if (e && e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (err) {
+        data = e.parameter || {};
       }
     }
+
+    var membersStr = data.team_members || '';
 
     sheet.appendRow([
-      data.registration_id,
-      data.submitted_at,
-      safeCell(data.team_name),
-      safeCell(data.full_name),
-      safeCell(data.email),
-      safeCell(data.student_id),
-      safeCell(data.academic_year),
-      safeCell(data.programming_languages),
-      safeCell(data.team_members || ""),
-      JSON.stringify(parsedMembers),
-      incomingIds.join(",")
+      data.submitted_at || new Date().toISOString(),
+      data.team_name || '',
+      data.full_name || '',
+      data.email || '',
+      data.student_id || '',
+      data.academic_year || '',
+      data.programming_languages || '',
+      membersStr
     ]);
 
-    return jsonResponse({ status: "success", registration_id: data.registration_id });
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "success", message: "Registration recorded successfully." }))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return jsonResponse({ status: "error", message: String(error) });
-  } finally {
-    if (lock.hasLock()) lock.releaseLock();
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 ```
 
-## 3. Set the shared secret
+---
 
-1. In Apps Script, open **Project Settings**.
-2. Under **Script Properties**, add a property named `API_SECRET`.
-3. Give it a long random value, such as a password-manager-generated 32-character string.
-4. Save it. Do not place the secret directly in `Code.gs`.
+### Step 3: Deploy Web App
+1. Click **Deploy** > **New deployment**.
+2. Select type **Web app**.
+3. Set **Execute as**: `Me`, and **Who has access**: **`Anyone`**.
+4. Click **Deploy** (or **Deploy -> Manage deployments -> Edit -> New version -> Deploy** if updating).
+5. Copy the Web App URL (`https://script.google.com/macros/s/.../exec`).
 
-The secret protects registration writes and registration-list reads. The leaderboard remains publicly readable because it is displayed on the public website.
+---
 
-## 4. Deploy the web app
-
-1. Select **Deploy → New deployment**.
-2. Choose **Web app**.
-3. Set **Execute as** to **Me**.
-4. Set **Who has access** to **Anyone**.
-5. Deploy, approve the requested Google permissions, and copy the URL ending in `/exec`.
-
-When you change the script later, use **Deploy → Manage deployments → Edit → New version → Deploy**. Saving `Code.gs` alone does not update the live web app.
-
-To test the deployment, open this URL in an incognito window:
-
-```text
-https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?action=status
-```
-
-It should return `{"status":"active"}`.
-
-## 5. Configure the website
-
-For local development, add these values to `.env.local`:
+### Step 4: Configure `.env.local`
+In `codefest/.env.local`:
 
 ```env
-GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
-SHEETS_API_SECRET=the-same-value-as-the-API_SECRET-script-property
-GOOGLE_SHEETS_LEADERBOARD_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+GOOGLE_SHEETS_LEADERBOARD_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 ```
 
-Use the same `/exec` URL for both URL variables.
-
-For Vercel:
-
-1. Open the project in Vercel.
-2. Go to **Settings → Environment Variables**.
-3. Add all three variables for the Production environment.
-4. Redeploy the latest commit. Environment-variable changes do not affect an already completed deployment until it is redeployed.
-
-Never prefix these values with `NEXT_PUBLIC_`; the registration URL and shared secret must remain server-side.
-
-## 6. Enter leaderboard scores
-
-In the `Leaderboard` tab, enter one team per row using these columns:
-
-```text
-Team Name | Data Structures Points | Security Points | Systems Points | Latest Solve
-```
-
-The public `/leaderboard` page and the admin leaderboard tab read these values live.
-
-## Troubleshooting
-
-- **“Google Sheets storage is not configured”**: one or both registration variables are missing, or Vercel has not been redeployed.
-- **“Google Sheets returned an unexpected response”**: confirm the URL ends in `/exec`, access is set to **Anyone**, and a new Apps Script version was deployed.
-- **“Unauthorized”**: `SHEETS_API_SECRET` does not exactly match the `API_SECRET` Script Property.
-- **403 from Google**: deploy from an account allowed to publish web apps to **Anyone**. Some school or workplace Google Workspace accounts disable this option.
-- **The registration dashboard is empty**: verify the Apps Script deployment is current and the site can read the `Registrations` tab with the same secret.
-- **The leaderboard shows sample data**: verify `GOOGLE_SHEETS_LEADERBOARD_URL` is configured and the `Leaderboard` tab contains at least one team.
+Now, when users register on the website:
+1. Registrations are automatically saved locally and appear in the **Admin Dashboard ("Teams Data" tab)**.
+2. Registrations are automatically appended to the **"Registrations"** tab in your Google Spreadsheet.
+3. When judges enter marks in the **"Leaderboard"** tab in Google Sheets, the website's `/leaderboard` page automatically fetches and displays the live scores!

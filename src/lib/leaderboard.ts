@@ -90,12 +90,13 @@ export async function fetchLiveLeaderboard(): Promise<{ teams: LeaderboardTeam[]
         Accept: "application/json",
       },
       cache: "no-store",
+      next: { revalidate: 0 },
       redirect: "follow",
     });
 
     if (!response.ok) {
       console.warn(`GOOGLE_SHEETS_LEADERBOARD_URL returned status ${response.status}`);
-      return { teams: MOCK_LEADERBOARD, source: "local_mock" };
+      return { teams: [], source: "google_spreadsheet_error" };
     }
 
     const rawJson = await response.json();
@@ -111,7 +112,7 @@ export async function fetchLiveLeaderboard(): Promise<{ teams: LeaderboardTeam[]
     }
 
     if (!rawList || rawList.length === 0) {
-      return { teams: MOCK_LEADERBOARD, source: "local_mock" };
+      return { teams: [], source: "google_spreadsheet_empty" };
     }
 
     // Check if 2D array format (headers in row 0)
@@ -150,10 +151,7 @@ export async function fetchLiveLeaderboard(): Promise<{ teams: LeaderboardTeam[]
       formatted.sort((a, b) => b.total_score - a.total_score);
       formatted.forEach((t, i) => (t.rank = i + 1));
 
-      return {
-        teams: formatted.length > 0 ? formatted : MOCK_LEADERBOARD,
-        source: formatted.length > 0 ? "google_spreadsheet" : "local_mock",
-      };
+      return { teams: formatted, source: "google_spreadsheet" };
     }
 
     // Array of Objects format
@@ -205,6 +203,6 @@ export async function fetchLiveLeaderboard(): Promise<{ teams: LeaderboardTeam[]
     return { teams: formatted, source: "google_spreadsheet" };
   } catch (error) {
     console.error("Error fetching live leaderboard:", error);
-    return { teams: MOCK_LEADERBOARD, source: "local_mock" };
+    return { teams: [], source: "google_spreadsheet_exception" };
   }
 }

@@ -28,7 +28,7 @@ export function AdminDashboardClient({
   async function fetchLiveLeaderboard() {
     setLoading(true);
     try {
-      const res = await fetch("/api/leaderboard");
+      const res = await fetch("/api/leaderboard", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data.teams) {

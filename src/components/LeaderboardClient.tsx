@@ -16,7 +16,7 @@ export function LeaderboardClient({ initialTeams = [] }: LeaderboardClientProps)
   async function fetchLeaderboard() {
     setLoading(true);
     try {
-      const res = await fetch("/api/leaderboard");
+      const res = await fetch("/api/leaderboard", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data.teams) {
@@ -32,12 +32,13 @@ export function LeaderboardClient({ initialTeams = [] }: LeaderboardClientProps)
   }
 
   useEffect(() => {
-    setTeams(initialTeams);
-    if (initialTeams.length > 0) {
+    if (initialTeams && initialTeams.length > 0) {
+      setTeams(initialTeams);
       setLastUpdated(new Date().toLocaleTimeString());
-    } else {
-      fetchLeaderboard();
     }
+
+    // Always fetch fresh scores from /api/leaderboard on mount
+    fetchLeaderboard();
 
     // Auto-refresh every 15 seconds for live judge spreadsheet updates
     const interval = setInterval(fetchLeaderboard, 15000);
